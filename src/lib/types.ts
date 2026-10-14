@@ -52,6 +52,7 @@ export interface DocDTO {
   serviceDiscount: string;
   notes: string;
   void: boolean;
+  locationId: string | null; // invoices take stock out of this location
   payments: PaymentDTO[];
   createdAt?: string;
   updatedAt?: string;
@@ -70,6 +71,33 @@ export interface ProductDTO {
   name: string;
   unit: string;
   price: string;
+  serialTracked: boolean;
+}
+
+export interface LocationDTO { id: string; name: string; sort: number; active: boolean }
+export interface UserDTO { id: string; name: string; username: string; active?: boolean }
+
+export type TransferStatus = 'pending' | 'delivering' | 'received' | 'cancelled';
+
+export interface PurchaseItemDTO { id?: string; productId: string; qty: number | string; unitCost: number | string; serials: string[] }
+export interface PurchaseDTO {
+  id?: string; number: string; date: string; supplier: string; orderRef: string; locationId: string;
+  status: 'ordered' | 'cancelled'; notes: string; items: PurchaseItemDTO[];
+  createdBy?: string; cancelledBy?: string; cancelledAt?: string | null; createdAt?: string;
+  transfers?: { id: string; number: string; status: TransferStatus; toId: string }[];
+}
+
+export interface TransferItemDTO { id?: string; productId: string; qty: number | string; serials: string[]; receivedQty?: number | null; receivedSerials?: string[] | null }
+export interface TransferDTO {
+  id?: string; number: string; date: string; fromId: string; toId: string; status: TransferStatus; notes: string;
+  purchaseOrderId?: string | null; previousId?: string | null; items: TransferItemDTO[];
+  createdBy?: string; sentBy?: string; sentAt?: string | null; receivedBy?: string; receivedAt?: string | null;
+  cancelledBy?: string; cancelledAt?: string | null; createdAt?: string;
+}
+
+export interface StockRow {
+  id: string; code: string; name: string; unit: string; serialTracked: boolean; avgCost: number;
+  byLocation: Record<string, number>; inTransit: Record<string, number>; total: number; transit: number;
 }
 
 export type Status = 'unpaid' | 'partial' | 'paid' | 'overdue' | 'overpaid' | 'void';

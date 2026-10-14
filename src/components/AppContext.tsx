@@ -4,7 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState, ty
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/client';
 import { translate } from '@/lib/i18n';
-import type { CustomerDTO, DocDTO, ProductDTO, Settings } from '@/lib/types';
+import type { CustomerDTO, DocDTO, LocationDTO, ProductDTO, Settings, UserDTO } from '@/lib/types';
 
 type T = (s: string, v?: Record<string, unknown>) => string;
 
@@ -13,6 +13,8 @@ interface Ctx {
   setSettings: (s: Settings) => void;
   customers: CustomerDTO[];
   products: ProductDTO[];
+  locations: LocationDTO[]; // all, sorted; use .filter(l => l.active) for pickers
+  me: UserDTO | null;
   docs: DocDTO[];
   reloadMaster: () => Promise<void>;
   reloadDocs: () => Promise<DocDTO[]>;
@@ -37,6 +39,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useState<Settings | null>(null);
   const [customers, setCustomers] = useState<CustomerDTO[]>([]);
   const [products, setProducts] = useState<ProductDTO[]>([]);
+  const [locations, setLocations] = useState<LocationDTO[]>([]);
+  const [me, setMe] = useState<UserDTO | null>(null);
+  const [masterReady, setMasterReady] = useState(false);
   const [docs, setDocs] = useState<DocDTO[]>([]);
   const [toastMsg, setToastMsg] = useState('');
   const [toastOn, setToastOn] = useState(false);
@@ -44,8 +49,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const dirtyRef = useRef(false);
 
   const reloadMaster = useCallback(async () => {
-    const [c, p] = await Promise.all([api<CustomerDTO[]>('/api/customers'), api<ProductDTO[]>('/api/products')]);
-    setCustomers(c); setProducts(p);
+    const [c, p, l] = await Promise.all([
+      api<CustomerDTO[]>('/api/customers'), api<ProductDTO[]>('/api/products'), api<LocationDTO[]>('/api/locations'),
+    ]);
+    setCustomers(c); setProducts(p); setLocations(l); setMasterReady(true);
   }, []);
   const reloadDocs = useCallback(async () => {
     const d = await api<DocDTO[]>('/api/docs');
@@ -55,6 +62,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     api<Settings>('/api/settings').then(setSettings);
+    api<UserDTO>('/api/auth/me').then(setMe);
     reloadMaster(); reloadDocs();
   }, [reloadMaster, reloadDocs]);
 
@@ -87,11 +95,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const navigate = useCallback((href: string) => { if (confirmLeave()) router.push(href); }, [confirmLeave, router]);
 
-  if (!settings) return <div className="loading">Loading…</div>;
+  if (!settings || !masterReady) return <div className="loading">Loading…</div>;
 
   return (
     <AppCtx.Provider value={{
-      settings, setSettings, customers, products, docs, reloadMaster, reloadDocs, t,
+      settings, setSettings, customers, products, locations, me, docs, reloadMaster, reloadDocs, t,
       money: (n) => {
         const v = Number(String(n ?? '').replace(/,/g, '')) || 0;
         return v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ' + (settings.currency || 'Ks');

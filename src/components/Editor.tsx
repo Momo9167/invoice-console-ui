@@ -9,6 +9,7 @@ import { useApp } from './AppContext';
 import { norm, Picker } from './Picker';
 import { SerialInput } from './SerialInput';
 import { PaymentsPanel } from './PaymentsPanel';
+import { useSerials, useStock } from '@/lib/useStock';
 import { Sheet } from './Sheet';
 
 const LABEL = { quotation: 'Quotation', invoice: 'Invoice' } as const;
@@ -16,13 +17,25 @@ const DUE_LABEL = { quotation: 'Valid Until', invoice: 'Due Date' } as const;
 
 export function Editor({ initial, startDirty = false }: { initial: DocDTO; startDirty?: boolean }) {
   const app = useApp();
-  const { t, money, toast, settings, customers, products } = app;
+  const { t, money, toast, settings, customers, products, locations } = app;
   const router = useRouter();
   const [d, setD] = useState<DocDTO>(initial);
   const [dirty, setDirtyState] = useState(startDirty);
   const [busy, setBusy] = useState(false);
   const isInv = d.type === 'invoice';
   const c = calc(d);
+  // Stock at the invoice's location, for availability hints and serial suggestions.
+  const { qty: stockQty, reload: reloadStock } = useStock();
+  const savedRef = useRef<DocDTO>(initial); // last saved version: its items are already out of stock
+  const ownSaved = (productId: string) => {
+    const s = savedRef.current;
+    if (!s.id || s.void || s.type !== 'invoice' || s.locationId !== d.locationId) return 0;
+    return s.items.filter((x) => linkedProduct(x)?.id === productId).reduce((n, x) => n + Math.round(num(x.qty)), 0);
+  };
+  const serialsHere = useSerials(isInv ? d.locationId : null);
+  const linkedProduct = (it: LineItem) =>
+    products.find((p) => p.id === it.productId) || products.find((p) => norm(p.name) === norm(it.description));
+  const locName = locations.find((l) => l.id === d.locationId)?.name;
 
   const setDirty = (v: boolean) => { setDirtyState(v); app.setDirty(v); };
   useEffect(() => { app.setDirty(startDirty); return () => app.setDirty(false); }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -47,6 +60,7 @@ export function Editor({ initial, startDirty = false }: { initial: DocDTO; start
         ? await api<DocDTO>(`/api/docs/${d.id}`, { method: 'PUT', body: d })
         : await api<DocDTO>('/api/docs', { method: 'POST', body: d });
       setD(saved); setDirty(false);
+      savedRef.current = saved; reloadStock();
       toast(t('{num} saved', { num: saved.number }));
       app.reloadDocs();
       if (!d.id) router.replace(`/docs/${saved.id}`);
@@ -81,7 +95,8 @@ export function Editor({ initial, startDirty = false }: { initial: DocDTO; start
     if (!confirm(t(d.void ? 'Restore {num}?' : 'Void {num}? It stays on file but no longer counts as money owed.', { num: d.number }))) return;
     if (!(await ensureSaved())) return;
     try {
-      setD(await api<DocDTO>(`/api/docs/${d.id}/void`, { method: 'POST', body: { void: !d.void } }));
+      const updated = await api<DocDTO>(`/api/docs/${d.id}/void`, { method: 'POST', body: { void: !d.void } });
+      setD(updated); savedRef.current = updated; reloadStock();
       app.reloadDocs();
     } catch (e) { toast((e as Error).message); }
   }
@@ -204,6 +219,14 @@ export function Editor({ initial, startDirty = false }: { initial: DocDTO; start
               <label className="f">{t(DUE_LABEL[d.type])}<input className="i" list="due-opts" value={d.dueDate} onChange={(e) => edit({ dueDate: e.target.value })} /></label>
               <label className="f">{t('Reference')}<input className="i" value={d.ref} placeholder={t('optional')} onChange={(e) => edit({ ref: e.target.value })} /></label>
             </div>
+            {isInv && (
+              <label className="f" style={{ marginTop: 10 }}>{t('Take stock from')}
+                <select className="i" value={d.locationId || ''} onChange={(e) => edit({ locationId: e.target.value || null })}>
+                  <option value="">{t('— No stock change —')}</option>
+                  {locations.filter((l) => l.active || l.id === d.locationId).map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}
+                </select>
+              </label>
+            )}
             <datalist id="due-opts">
               <option value="On Receipt">{t('On Receipt')}</option>
               {[7, 15, 30].map((n) => <option key={n} value={`${n} days`}>{t('{n} days', { n })}</option>)}
@@ -254,7 +277,21 @@ export function Editor({ initial, startDirty = false }: { initial: DocDTO; start
                   <label><span>{t('Price')}</span><input className="i" inputMode="decimal" placeholder="0" value={it.price} onChange={(e) => editItem(i, { price: e.target.value })} /></label>
                   <label><span>{t('Discount')}</span><input className="i" inputMode="decimal" placeholder="0" value={it.discount} onChange={(e) => editItem(i, { discount: e.target.value })} /></label>
                 </div>
-                <SerialInput serials={it.serials || []} qty={it.qty} onChange={(serials) => editItem(i, { serials })} />
+                {(() => {
+                  const p = isInv && d.locationId ? linkedProduct(it) : undefined;
+                  if (!p) return <SerialInput serials={it.serials || []} qty={it.qty} onChange={(serials) => editItem(i, { serials })} />;
+                  const have = stockQty(p.id, d.locationId!) + ownSaved(p.id);
+                  return (
+                    <>
+                      <SerialInput serials={it.serials || []} qty={it.qty} onChange={(serials) => editItem(i, { serials })}
+                        suggestions={p.serialTracked ? serialsHere[p.id] : undefined} />
+                      <div className={`avail inline${have < num(it.qty) ? ' low' : ''}`}>
+                        {t('In stock at {loc}: {n}', { loc: locName, n: have })}
+                        {have < num(it.qty) && <> · {t('not enough stock')}</>}
+                      </div>
+                    </>
+                  );
+                })()}
                 <div className="item-amt"><span>{t('Amount')}</span><b>{money(lineAmount(it))}</b></div>
                 <div className="cust-hint item-hint">{itemHint(it, i)}</div>
               </div>

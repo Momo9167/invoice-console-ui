@@ -1,5 +1,7 @@
-// Verifies the session cookie issued by invoice-service ("<expiresAtMs>.<hmac>"), same AUTH_SECRET.
+// Signed session cookie: "<userId>.<expiresAtMs>.<hmac>". Web Crypto only, so it also runs in middleware.
+// Keep this file identical in invoice-service and invoice-console-ui.
 export const SESSION_COOKIE = 'mooe_session';
+export const SESSION_DAYS = 30;
 
 const enc = new TextEncoder();
 
@@ -11,20 +13,26 @@ async function hmac(data: string) {
   return btoa(String.fromCharCode(...new Uint8Array(sig))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
-function safeEqual(a: string, b: string) {
+export function safeEqual(a: string, b: string) {
   if (a.length !== b.length) return false;
   let r = 0;
   for (let i = 0; i < a.length; i++) r |= a.charCodeAt(i) ^ b.charCodeAt(i);
   return r === 0;
 }
 
-export async function verifySession(token?: string | null) {
-  if (!token) return false;
-  const [exp, sig] = token.split('.');
-  if (!exp || !sig || !(Number(exp) > Date.now())) return false;
+export async function createSession(userId: string) {
+  const exp = Date.now() + SESSION_DAYS * 864e5;
+  return `${userId}.${exp}.${await hmac(`session:${userId}:${exp}`)}`;
+}
+
+// Returns the signed-in user's id, or null.
+export async function verifySession(token?: string | null): Promise<string | null> {
+  if (!token) return null;
+  const [userId, exp, sig] = token.split('.');
+  if (!userId || !exp || !sig || !(Number(exp) > Date.now())) return null;
   try {
-    return safeEqual(sig, await hmac(`session:${exp}`));
+    return safeEqual(sig, await hmac(`session:${userId}:${exp}`)) ? userId : null;
   } catch {
-    return false;
+    return null;
   }
 }

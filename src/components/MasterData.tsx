@@ -6,14 +6,15 @@ import type { CustomerDTO, DocDTO, ProductDTO } from '@/lib/types';
 import { useApp } from './AppContext';
 import { norm } from './Picker';
 
-type Tab = 'customers' | 'products';
-type Rec = Record<string, string> & { id?: string };
-interface Field { k: string; label: string; ph?: string; ta?: boolean; half?: boolean; num?: boolean }
+type Tab = 'customers' | 'products' | 'locations';
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Rec = Record<string, any> & { id?: string };
+interface Field { k: string; label: string; ph?: string; ta?: boolean; half?: boolean; num?: boolean; bool?: boolean; hint?: string }
 interface Col { h: string; cls?: string; v: (x: Rec) => ReactNode }
 
 export function MasterData({ tab }: { tab: Tab }) {
   const app = useApp();
-  const { t, money, toast, customers, products, docs, navigate } = app;
+  const { t, money, toast, customers, products, locations, docs, navigate } = app;
   const [q, setQ] = useState('');
   const [editing, setEditing] = useState<Rec | null>(null);
   const [form, setForm] = useState<Rec>({});
@@ -43,16 +44,28 @@ export function MasterData({ tab }: { tab: Tab }) {
         { k: 'unit', label: 'Unit', ph: 'pcs', half: true },
         { k: 'name', label: 'Name / description', ph: 'e.g. Ezviz H8C Pro 3k' },
         { k: 'price', label: 'Default price', ph: '0', num: true },
+        { k: 'serialTracked', label: 'Has serial numbers', bool: true, hint: 'Track each unit by serial number through purchases, transfers and invoices.' },
       ] as Field[],
       cols: [
         { h: 'Code', v: (p) => <span style={{ fontFamily: 'ui-monospace,Menlo,monospace', color: 'var(--muted)' }}>{p.code}</span> },
         { h: 'Name', v: (p) => <b>{p.name}</b> },
         { h: 'Unit', cls: 'hide-sm', v: (p) => p.unit },
         { h: 'Price', cls: 'r', v: (p) => money(p.price) },
+        { h: 'Serials', cls: 'hide-sm', v: (p) => (p.serialTracked ? <span className="badge st-paid">S/N</span> : '') },
         { h: 'Used', cls: 'r hide-sm', v: (p) => used((d) => d.items.some((it) => it.productId === p.id || norm(it.description) === norm(p.name))) },
       ] as Col[],
       search: (p: Rec) => [p.code, p.name],
       emptyHint: 'Add one with the form, or use “Save to item list” while making a quotation or invoice.',
+    },
+    locations: {
+      title: 'Locations', one: 'location', api: '/api/locations', list: locations as unknown as Rec[],
+      fields: [{ k: 'name', label: 'Name', ph: 'e.g. Mandalay' }] as Field[],
+      cols: [
+        { h: 'Name', v: (l) => <b>{l.name}</b> },
+        { h: 'Status', v: (l) => <span className={`badge ${l.active ? 'st-paid' : 'st-void'}`}>{t(l.active ? 'Active' : 'Inactive')}</span> },
+      ] as Col[],
+      search: (l: Rec) => [l.name],
+      emptyHint: 'Add the places where you keep stock.',
     },
   }[tab];
 
@@ -62,7 +75,12 @@ export function MasterData({ tab }: { tab: Tab }) {
   const shown = M.list.filter((x) => !query || M.search(x).some((v) => norm(v).includes(query)));
 
   const startEdit = (x: Rec | null) => { setEditing(x); setForm(x ? { ...x } : {}); scrollTo(0, 0); };
-  const field = (f: Field) => (
+  const field = (f: Field) => f.bool ? (
+    <label className="check block" key={f.k}>
+      <input type="checkbox" checked={!!form[f.k]} onChange={(e) => setForm({ ...form, [f.k]: e.target.checked })} />
+      <span><b>{t(f.label)}</b>{f.hint && <small>{t(f.hint)}</small>}</span>
+    </label>
+  ) : (
     <label className="f" key={f.k}>{t(f.label)}
       {f.ta
         ? <textarea className="i" rows={3} value={form[f.k] || ''} onChange={(e) => setForm({ ...form, [f.k]: e.target.value })} />
@@ -84,9 +102,10 @@ export function MasterData({ tab }: { tab: Tab }) {
     <>
       <div className="list-head"><h2>{t('Master Data')}</h2></div>
       <div className="tabs">
-        {(['customers', 'products'] as Tab[]).map((k) => (
+        {(['customers', 'products', 'locations'] as Tab[]).map((k) => (
           <a key={k} href={`/master/${k}`} className={tab === k ? 'on' : ''} onClick={(e) => { e.preventDefault(); navigate(`/master/${k}`); }}>
-            {t(k === 'customers' ? 'Customers' : 'Items')}<span>{k === 'customers' ? customers.length : products.length}</span>
+            {t(k === 'customers' ? 'Customers' : k === 'products' ? 'Items' : 'Locations')}
+            <span>{k === 'customers' ? customers.length : k === 'products' ? products.length : locations.length}</span>
           </a>
         ))}
       </div>
@@ -117,13 +136,20 @@ export function MasterData({ tab }: { tab: Tab }) {
                         <button className="btn" onClick={() => navigate(`/docs/new/invoice?customer=${x.id}`)}>{t('+ Invoice')}</button>
                       </>}
                       <button className="btn" onClick={() => startEdit(x)}>{t('Edit')}</button>
-                      <button className="btn danger" onClick={async () => {
+                      {tab === 'locations' ? (
+                        // Locations are never deleted (stock history points at them); they're switched off instead.
+                        <button className="btn" onClick={async () => {
+                          await api(`${M.api}/${x.id}`, { method: 'PUT', body: { active: !x.active } });
+                          await app.reloadMaster();
+                          toast(t(x.active ? '{name} deactivated' : '{name} activated', { name: x.name }));
+                        }}>{t(x.active ? 'Deactivate' : 'Activate')}</button>
+                      ) : <button className="btn danger" onClick={async () => {
                         if (!confirm(t('Delete {name} from the {x} list? Saved quotations and invoices are not affected.', { name: x.name, x: one }))) return;
                         await api(`${M.api}/${x.id}`, { method: 'DELETE' });
                         if (editing?.id === x.id) startEdit(null);
                         await app.reloadMaster();
                         toast(t('{name} deleted', { name: x.name }));
-                      }}>{t('Delete')}</button>
+                      }}>{t('Delete')}</button>}
                     </div></td>
                   </tr>
                 ))}

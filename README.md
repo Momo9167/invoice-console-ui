@@ -4,7 +4,8 @@ Frontend for **Mooe Console** — quotations, invoices, payment history, custome
 
 - Next.js 15 (App Router, React 19, TypeScript)
 - All `/api/*` requests are forwarded to invoice-service (`API_URL`), so the browser talks to one origin and the login cookie just works
-- Pages require login (cookie checked with the same `AUTH_SECRET` as the backend)
+- Pages require login (username + password; cookie checked with the same `AUTH_SECRET` as the backend)
+- Stock: Stock levels per location, Purchase orders, Transfers (Myawaddy → Bago → Yangon), invoice “Take stock from”, serial-number tracking
 - `src/components/Sheet.tsx` is the A4 document used for the live preview, printing, and PDF export (`/print/[id]`)
 
 ## Run locally

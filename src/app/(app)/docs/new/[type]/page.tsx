@@ -15,7 +15,7 @@ export default function Page({ params }: { params: Promise<{ type: string }> }) 
   const type: DocType = raw === 'invoice' ? 'invoice' : 'quotation';
   const search = useSearchParams();
   const from = search.get('from'), customerId = search.get('customer');
-  const { t } = useApp();
+  const { t, locations } = useApp();
   const [doc, setDoc] = useState<DocDTO | null>(null);
 
   useEffect(() => {
@@ -35,6 +35,10 @@ export default function Page({ params }: { params: Promise<{ type: string }> }) 
         notes: src?.notes ?? '',
         void: false,
         payments: [], // never copied
+        // Invoices take stock from here; default to Yangon (or the first active location).
+        locationId: type === 'invoice'
+          ? (src?.type === 'invoice' && src.locationId) || (locations.find((l) => l.active && l.name.toLowerCase() === 'yangon') || locations.find((l) => l.active))?.id || null
+          : null,
       });
     })();
   }, [type, from, customerId]);

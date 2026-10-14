@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { api } from '@/lib/client';
 import type { Settings } from '@/lib/types';
 import { useApp } from './AppContext';
+import { UsersPanel } from './UsersPanel';
 
 export function SettingsPage() {
   const app = useApp();
@@ -36,6 +37,7 @@ export function SettingsPage() {
           <div style={{ marginTop: 10 }}>{field('footerMy', 'Footer message (Myanmar)')}</div>
           <p style={muted}>{t('Used on Myanmar documents. Leave empty to use the footer message above.')}</p>
         </div>
+        <UsersPanel />
         <div className="section"><h3>{t('Company')}</h3>
           {field('companyName', 'Company name')}{field('address', 'Address', true)}
           <div className="grid2" style={{ marginTop: 10 }}>{field('phone', 'Phone')}{field('email', 'Email')}</div>

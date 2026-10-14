@@ -5,7 +5,11 @@ import { num, splitSerials } from '@/lib/calc';
 import { useApp } from './AppContext';
 
 // Tag-style input for several serial numbers on one line item. Works with barcode scanners (they press Enter).
-export function SerialInput({ serials, qty, onChange }: { serials: string[]; qty: unknown; onChange: (s: string[]) => void }) {
+export function SerialInput({ serials, qty, onChange, suggestions, required }: {
+  serials: string[]; qty: unknown; onChange: (s: string[]) => void;
+  suggestions?: string[]; // serials in stock at the chosen location, shown as quick picks
+  required?: boolean;
+}) {
   const { t, toast } = useApp();
   const [text, setText] = useState('');
 
@@ -23,7 +27,7 @@ export function SerialInput({ serials, qty, onChange }: { serials: string[]; qty
     <div className="sn">
       <div className="sn-head">
         <span>{t('Serial Nos.')}</span>
-        {n > 0 && <span className={n === q ? 'full' : 'warn'}>{n} / {q}{n === q ? ' ✓' : ''}</span>}
+        {(n > 0 || required) && <span className={n === q ? 'full' : 'warn'}>{n} / {q}{n === q ? ' ✓' : ''}</span>}
       </div>
       <div className="sn-box" onClick={(e) => { if (e.target === e.currentTarget) (e.currentTarget.querySelector('input') as HTMLInputElement)?.focus(); }}>
         {serials.map((x, j) => (
@@ -45,6 +49,14 @@ export function SerialInput({ serials, qty, onChange }: { serials: string[]; qty
           onBlur={() => { if (text.trim()) add(text); }}
         />
       </div>
+      {suggestions && suggestions.filter((x) => !serials.includes(x)).length > 0 && (
+        <div className="sn-suggest">
+          <span>{t('In stock here:')}</span>
+          {suggestions.filter((x) => !serials.includes(x)).slice(0, 40).map((x) => (
+            <button type="button" key={x} onClick={() => onChange([...serials, x])}>+ {x}</button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
