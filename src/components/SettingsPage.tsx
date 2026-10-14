@@ -38,6 +38,10 @@ export function SettingsPage() {
           <p style={muted}>{t('Used on Myanmar documents. Leave empty to use the footer message above.')}</p>
         </div>
         <UsersPanel />
+        <div className="section"><h3>{t('Shares')}</h3>
+          <div className="grid2">{field('partnerName', 'Partner (sells, holds the cash)')}{field('ownerName', 'Owner (owns the stock)')}</div>
+          <p style={muted}>{t('Names used on the Shares and Expenses pages.')}</p>
+        </div>
         <div className="section"><h3>{t('Company')}</h3>
           {field('companyName', 'Company name')}{field('address', 'Address', true)}
           <div className="grid2" style={{ marginTop: 10 }}>{field('phone', 'Phone')}{field('email', 'Email')}</div>

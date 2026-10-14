@@ -15,6 +15,8 @@ export interface Settings {
   footerMy: string;
   uiLang: Lang;
   docLang: Lang;
+  ownerName: string;   // owns the stock, gets the rest of item sales (Ako)
+  partnerName: string; // sells, holds the cash, gets shares + delivery + service (Bmm)
 }
 
 export interface LineItem {
@@ -53,6 +55,9 @@ export interface DocDTO {
   notes: string;
   void: boolean;
   locationId: string | null; // invoices take stock out of this location
+  // Internal Bmm / Ako split, never shown to the customer.
+  split?: SplitDTO | null;
+  splitStatus?: 'new' | 'complete';
   payments: PaymentDTO[];
   createdAt?: string;
   updatedAt?: string;
@@ -103,3 +108,17 @@ export interface StockRow {
 }
 
 export type Status = 'unpaid' | 'partial' | 'paid' | 'overdue' | 'overpaid' | 'void';
+
+export interface SplitDTO {
+  shares: number[]; // Bmm's share per unit, one per item line
+  delivery: 'bmm' | 'outsourced';
+  itemsKey?: string; // items the split was made for; editing them sends the invoice back to "new"
+  at?: string; by?: string;
+}
+
+export interface ExpenseDTO {
+  id?: string; date: string; category: string; amount: string | number; paidFrom: 'cash' | 'owner';
+  note: string; refType?: string; refId?: string; refNumber?: string; createdBy?: string;
+}
+
+export interface PayoutDTO { id?: string; date: string; amount: string | number; note: string; createdBy?: string }

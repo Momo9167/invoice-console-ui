@@ -464,3 +464,15 @@
   }
   input.i.qty-in { width: 90px; text-align: right; }
   td .sn { min-width: 220px; max-width: 420px; }
+
+  /* ---------- shares & expenses ---------- */
+  .grid3 { display: grid; grid-template-columns: 160px 180px 1fr; gap: 10px; }
+  .money-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  input.i.share-in { width: 120px; text-align: right; }
+  .split-table td { vertical-align: middle; }
+  .split-table tfoot td { font-size: 14px; }
+  @media (max-width: 1100px) { .money-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 767px) {
+    .grid3 { grid-template-columns: 1fr; }
+    .split-table { min-width: 640px; }
+  }

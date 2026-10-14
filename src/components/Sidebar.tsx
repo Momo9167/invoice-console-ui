@@ -16,6 +16,8 @@ const ICONS = {
   out: icon('M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9'),
   pay: icon('M3 7h18v10H3zM3 11h18M7 15h3'),
   plus: icon('M12 5v14M5 12h14'),
+  share: icon('M21 12a9 9 0 1 1-9-9v9zM12 3a9 9 0 0 1 9 9h-9'),
+  expense: icon('M4 4h16v16H4zM8 9h8M8 13h8M8 17h5'),
   stock: icon('M21 8l-9-5-9 5v8l9 5 9-5zM3 8l9 5 9-5M12 13v8'),
   cart: icon('M3 4h2l2.5 11h11L21 7H6.2M9 20a1 1 0 1 0 0-.01M18 20a1 1 0 1 0 0-.01'),
   truck: icon('M2 6h11v9H2zM13 9h4l4 4v2h-8M6 18a2 2 0 1 0 0-.01M17 18a2 2 0 1 0 0-.01'),
@@ -49,6 +51,8 @@ export function Sidebar() {
       <nav className="side-nav">
         {link('/', 'Documents', 'docs', path === '/' || path.startsWith('/docs'))}
         {link('/payments', 'Payments', 'pay', path === '/payments')}
+        {link('/shares', 'Shares', 'share', path.startsWith('/shares'))}
+        {link('/expenses', 'Expenses', 'expense', path === '/expenses')}
         <div className="side-label side-group">{t('Stock')}</div>
         {link('/stock', 'Stock', 'stock', path.startsWith('/stock'))}
         {link('/purchases', 'Purchase orders', 'cart', path.startsWith('/purchases'))}

@@ -75,3 +75,23 @@ export function statusOf(d: DocDTO): Status | null {
 }
 
 export const blankItem = (): LineItem => ({ description: '', serials: [], qty: 1, unit: 'pcs', price: '', discount: '' });
+
+// ---------------------------------------------------------------- Bmm / Ako split
+
+// Fingerprint of an invoice's items; a split is only valid for the items it was made for.
+export const itemsKey = (items: LineItem[]) =>
+  JSON.stringify((items || []).map((i) => [String(i.description || '').trim().toLowerCase(), num(i.qty), num(i.price), num(i.discount)]));
+
+// Who gets what from one invoice. Items: Bmm gets his share per unit, Ako the rest (item discounts come out
+// of Ako's part). Delivery: Bmm's if he delivered, the courier's if outsourced. Service (after discount): Bmm.
+export function splitOf(d: Pick<DocDTO, 'items' | 'deliveryFee' | 'serviceCharge' | 'serviceDiscount' | 'payments' | 'split'>) {
+  const c = calc(d);
+  const s = d.split;
+  const bmmItems = s ? c.lines.reduce((t, l, i) => t + num(s.shares?.[i]) * num(l.qty), 0) : 0;
+  const outsourced = s?.delivery === 'outsourced';
+  const bmmDelivery = outsourced ? 0 : c.delivery;
+  const courier = outsourced ? c.delivery : 0;
+  const bmm = bmmItems + bmmDelivery + c.service;
+  const ako = c.subtotal - bmmItems;
+  return { ...c, bmmItems, akoItems: ako, bmmDelivery, courier, bmm, ako };
+}
