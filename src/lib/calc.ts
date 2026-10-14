@@ -52,13 +52,14 @@ export const splitSerials = (v: unknown) =>
 
 export const lineAmount = (it: LineItem) => num(it.qty) * num(it.price) - num(it.discount);
 
-export function calc(d: Pick<DocDTO, 'items' | 'deliveryFee' | 'payments'>) {
+export function calc(d: Pick<DocDTO, 'items' | 'deliveryFee' | 'serviceCharge' | 'payments'>) {
   const lines = (d.items || []).map((it) => ({ ...it, amount: lineAmount(it) }));
   const subtotal = lines.reduce((s, l) => s + l.amount, 0);
   const delivery = num(d.deliveryFee);
-  const total = subtotal + delivery;
+  const service = num(d.serviceCharge);
+  const total = subtotal + delivery + service;
   const paid = (d.payments || []).reduce((t, p) => t + num(p.amount), 0);
-  return { lines, subtotal, delivery, total, paid, balance: total - paid };
+  return { lines, subtotal, delivery, service, total, paid, balance: total - paid };
 }
 
 export function statusOf(d: DocDTO): Status | null {

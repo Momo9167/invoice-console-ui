@@ -109,6 +109,7 @@ export function Sheet({ doc: d, settings: s, style }: { doc: DocDTO; settings: S
         <div className="s-totals">
           <Row k={td('Subtotal')} v={money(c.subtotal)} />
           {c.delivery > 0 && <Row k={td('Delivery Fee')} v={money(c.delivery)} />}
+          {c.service > 0 && <Row k={td('Service Charge')} v={money(c.service)} />}
           <Row k={td('Total')} v={money(c.total)} cls="total" />
           {<Row k={td('Paid') + (pays.length > 1 ? td(' ({n} payments)', { n: pays.length }) : '')} v={(c.paid ? '(-) ' : '') + money(c.paid)} />}
           <Row k={td(st === 'overpaid' ? 'Credit' : 'Balance Due')} v={money(Math.abs(c.balance))} cls="due" />
