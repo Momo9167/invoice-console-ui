@@ -69,7 +69,7 @@ export function Sidebar() {
             <span className="full">မြန်မာ</span><span className="short">MY</span>
           </button>
         </div>
-        {me && <div className="side-user" title={`@${me.username}`}><span className="avatar">{me.name.slice(0, 1).toUpperCase()}</span><span>{me.name}</span></div>}
+        {me && <div className="side-user" title={`@${me.username} · ${t('Change my password')}`} style={{ cursor: 'pointer' }} onClick={() => navigate('/settings#password')}><span className="avatar">{me.name.slice(0, 1).toUpperCase()}</span><span>{me.name}</span></div>}
         <button className="side-out" onClick={async () => {
           if (!confirmLeave()) return;
           await api('/api/auth/logout', { method: 'POST' });

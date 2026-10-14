@@ -6,6 +6,35 @@ import type { UserDTO } from '@/lib/types';
 import { useApp } from './AppContext';
 
 // Everyone has the same access; this just manages who can log in.
+function MyPassword() {
+  const { t, toast, me } = useApp();
+  const [f, setF] = useState({ current: '', next: '', again: '' });
+  const [err, setErr] = useState('');
+  async function save() {
+    setErr('');
+    if (f.next.length < 6) return setErr(t('Password must be at least 6 characters'));
+    if (f.next !== f.again) return setErr(t('The new passwords don’t match'));
+    try {
+      await api('/api/auth/password', { method: 'POST', body: { current: f.current, next: f.next } });
+      toast(t('Password changed')); setF({ current: '', next: '', again: '' });
+    } catch (e) { setErr(t((e as Error).message)); }
+  }
+  return (
+    <div className="section" id="password">
+      <h3>{t('Change my password')} {me && <span style={{ textTransform: 'none', letterSpacing: 0, fontWeight: 500 }}>· {me.name} (@{me.username})</span>}</h3>
+      <label className="f">{t('Current password')}<input className="i" type="password" autoComplete="current-password" value={f.current} onChange={(e) => setF({ ...f, current: e.target.value })} /></label>
+      <div className="grid2" style={{ marginTop: 10 }}>
+        <label className="f">{t('New password')}<input className="i" type="password" autoComplete="new-password" value={f.next} onChange={(e) => setF({ ...f, next: e.target.value })} /></label>
+        <label className="f">{t('New password again')}<input className="i" type="password" autoComplete="new-password" value={f.again} onChange={(e) => setF({ ...f, again: e.target.value })} /></label>
+      </div>
+      <div style={{ display: 'flex', gap: 8, marginTop: 12, alignItems: 'center' }}>
+        <button className="btn dark" disabled={!f.current || !f.next} onClick={save}>{t('Change password')}</button>
+        <span style={{ color: 'var(--danger)', fontSize: 13 }}>{err}</span>
+      </div>
+    </div>
+  );
+}
+
 export function UsersPanel() {
   const { t, toast, me } = useApp();
   const [users, setUsers] = useState<UserDTO[]>([]);
@@ -28,6 +57,8 @@ export function UsersPanel() {
   }
 
   return (
+    <>
+    <MyPassword />
     <div className="section">
       <h3>{t('Users')}</h3>
       <div className="user-list">
@@ -57,5 +88,6 @@ export function UsersPanel() {
         <span style={{ color: 'var(--danger)', fontSize: 13 }}>{err}</span>
       </div>
     </div>
+    </>
   );
 }
