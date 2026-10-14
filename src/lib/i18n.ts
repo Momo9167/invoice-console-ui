@@ -53,7 +53,17 @@ const MY: Record<string, string> = {
   'No matches': 'ကိုက်ညီသည်များ မတွေ့ပါ',
   'No documents yet': 'စာရွက်စာတမ်း မရှိသေးပါ',
   'Try a different search.': 'အခြားစကားလုံးဖြင့် ရှာကြည့်ပါ။',
-  'Create your first quotation or invoice with the buttons above.': 'အပေါ်ရှိ ခလုတ်များဖြင့် ပထမဆုံး ဈေးနှုန်းလွှာ သို့မဟုတ် ငွေတောင်းခံလွှာ ဖန်တီးပါ။',
+  'Create your first quotation or invoice with the buttons on the left.': 'ဘယ်ဘက်ရှိ ခလုတ်များဖြင့် ပထမဆုံး ဈေးနှုန်းလွှာ သို့မဟုတ် ငွေတောင်းခံလွှာ ဖန်တီးပါ။',
+  'No documents in this period.': 'ဤကာလတွင် စာရွက်စာတမ်း မရှိပါ။',
+  'Month': 'လ',
+  'Year': 'နှစ်',
+  'All months': 'လ အားလုံး',
+  'All years': 'နှစ် အားလုံး',
+  'Clear': 'ရှင်းမည်',
+  'January': 'ဇန်နဝါရီ', 'February': 'ဖေဖော်ဝါရီ', 'March': 'မတ်', 'April': 'ဧပြီ',
+  'May': 'မေ', 'June': 'ဇွန်', 'July': 'ဇူလိုင်', 'August': 'ဩဂုတ်',
+  'September': 'စက်တင်ဘာ', 'October': 'အောက်တိုဘာ', 'November': 'နိုဝင်ဘာ', 'December': 'ဒီဇင်ဘာ',
+  'Switch the app language with the EN / မြန်မာ toggle in the sidebar.': 'အက်ပ် ဘာသာစကားကို ဘေးဘားရှိ EN / မြန်မာ ခလုတ်ဖြင့် ပြောင်းပါ။',
 
   // editor
   '← Back': '← နောက်သို့',

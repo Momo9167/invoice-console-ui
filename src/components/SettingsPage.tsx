@@ -16,7 +16,7 @@ export function SettingsPage() {
         : <input className="i" value={String(s[k] ?? '')} onChange={(e) => set(k, e.target.value)} />}
     </label>
   );
-  const langSel = (k: 'uiLang' | 'docLang', label: string) => (
+  const langSel = (k: 'docLang', label: string) => (
     <label className="f">{t(label)}
       <select className="i" value={s[k]} onChange={(e) => set(k, e.target.value)}>
         <option value="en">English</option>
@@ -31,7 +31,8 @@ export function SettingsPage() {
       <div className="list-head"><h2>{t('Settings')}</h2></div>
       <div className="form">
         <div className="section"><h3>{t('Language')}</h3>
-          <div className="grid2">{langSel('uiLang', 'App language')}{langSel('docLang', 'Document language (invoice, quotation, PDF)')}</div>
+          <div className="grid2">{langSel('docLang', 'Document language (invoice, quotation, PDF)')}</div>
+          <p style={muted}>{t('Switch the app language with the EN / မြန်မာ toggle in the sidebar.')}</p>
           <div style={{ marginTop: 10 }}>{field('footerMy', 'Footer message (Myanmar)')}</div>
           <p style={muted}>{t('Used on Myanmar documents. Leave empty to use the footer message above.')}</p>
         </div>

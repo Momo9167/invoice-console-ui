@@ -8,19 +8,28 @@ import { StatusBadge } from './PaymentsPanel';
 
 const PLURAL = { quotation: 'Quotations', invoice: 'Invoices' } as const;
 const LABEL = { quotation: 'Quotation', invoice: 'Invoice' } as const;
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
 export function DocumentsList() {
   const { t, money, docs, reloadDocs, navigate } = useApp();
   const [filter, setFilter] = useState<'all' | DocType>('all');
   const [status, setStatus] = useState<'' | Status>('');
   const [q, setQ] = useState('');
+  const [month, setMonth] = useState(''); // '01'..'12' or '' for all
+  const [year, setYear] = useState('');   // '2026' or '' for all
   useEffect(() => { reloadDocs(); }, [reloadDocs]);
 
+  // Years that have documents, plus the current year, newest first.
+  const years = [...new Set([today().slice(0, 4), ...docs.map((d) => d.date.slice(0, 4))])].sort().reverse();
+  const inPeriod = docs.filter((d) => (!year || d.date.startsWith(year)) && (!month || d.date.slice(5, 7) === month));
+  const periodLabel = [month && t(MONTHS[+month - 1]), year].filter(Boolean).join(' ');
+
   const query = q.trim().toLowerCase();
-  const shown = docs.filter((d) => (filter === 'all' || d.type === filter)
+  const shown = inPeriod.filter((d) => (filter === 'all' || d.type === filter)
     && (!status || statusOf(d) === status)
     && (!query || [d.number, d.customer.name, d.customer.phone].some((x) => x.toLowerCase().includes(query))));
-  const inv = docs.filter((d) => d.type === 'invoice' && !d.void);
+  // Totals follow the month/year filter.
+  const inv = inPeriod.filter((d) => d.type === 'invoice' && !d.void);
   const sum = (list: typeof docs, f: (c: ReturnType<typeof calc>) => number) => list.reduce((s, d) => s + f(calc(d)), 0);
   const billed = sum(inv, (c) => c.total), received = sum(inv, (c) => c.paid);
   const outstanding = sum(inv, (c) => Math.max(0, c.balance));
@@ -30,7 +39,22 @@ export function DocumentsList() {
 
   return (
     <>
-      <div className="list-head"><h2>{t('Documents')}</h2></div>
+      <div className="list-head">
+        <h2>{t('Documents')}</h2>
+        {periodLabel && <span className="period-note">· {periodLabel}</span>}
+        <div className="spacer" />
+        <div className="period">
+          <select className="filter" value={month} onChange={(e) => setMonth(e.target.value)} aria-label={t('Month')}>
+            <option value="">{t('All months')}</option>
+            {MONTHS.map((m, i) => <option key={m} value={String(i + 1).padStart(2, '0')}>{t(m)}</option>)}
+          </select>
+          <select className="filter" value={year} onChange={(e) => setYear(e.target.value)} aria-label={t('Year')}>
+            <option value="">{t('All years')}</option>
+            {years.map((y) => <option key={y} value={y}>{y}</option>)}
+          </select>
+          {(month || year) && <button className="btn" onClick={() => { setMonth(''); setYear(''); }}>{t('Clear')}</button>}
+        </div>
+      </div>
       <div className="stats">
         <div className="stat"><div className="k">{t('Invoiced')}</div><div className="v">{money(billed)}</div><div className="s">{count(inv.length)}</div></div>
         <div className="stat"><div className="k">{t('Received')}</div><div className="v">{money(received)}</div><div className="s">{t('{p}% collected', { p: billed ? Math.round((received / billed) * 100) : 0 })}</div></div>
@@ -85,7 +109,7 @@ export function DocumentsList() {
         ) : (
           <div className="empty">
             <b>{t(docs.length ? 'No matches' : 'No documents yet')}</b>
-            {t(docs.length ? 'Try a different search.' : 'Create your first quotation or invoice with the buttons above.')}
+            {t(docs.length ? (periodLabel ? 'No documents in this period.' : 'Try a different search.') : 'Create your first quotation or invoice with the buttons on the left.')}
           </div>
         )}
       </div>
