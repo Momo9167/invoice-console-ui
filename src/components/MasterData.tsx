@@ -5,6 +5,9 @@ import { api } from '@/lib/client';
 import type { CustomerDTO, DocDTO, ProductDTO } from '@/lib/types';
 import { useApp } from './AppContext';
 import { norm } from './Picker';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 
 type Tab = 'customers' | 'products' | 'locations';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -83,8 +86,8 @@ export function MasterData({ tab }: { tab: Tab }) {
   ) : (
     <label className="f" key={f.k}>{t(f.label)}
       {f.ta
-        ? <textarea className="i" rows={3} value={form[f.k] || ''} onChange={(e) => setForm({ ...form, [f.k]: e.target.value })} />
-        : <input className="i" value={form[f.k] || ''} placeholder={t(f.ph || '')} inputMode={f.num ? 'decimal' : undefined}
+        ? <Textarea rows={3} value={form[f.k] || ''} onChange={(e) => setForm({ ...form, [f.k]: e.target.value })} />
+        : <Input value={form[f.k] || ''} placeholder={t(f.ph || '')} inputMode={f.num ? 'decimal' : undefined}
             onChange={(e) => setForm({ ...form, [f.k]: e.target.value })} />}
     </label>
   );
@@ -115,13 +118,13 @@ export function MasterData({ tab }: { tab: Tab }) {
           {M.fields.some((f) => f.half) && <div className="grid2" style={{ marginBottom: 10 }}>{M.fields.filter((f) => f.half).map(field)}</div>}
           {M.fields.filter((f) => !f.half).map(field)}
           <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
-            <button className="btn dark" onClick={save}>{editing?.id ? t('Update') : t('Add {x}', { x: one })}</button>
-            {editing?.id && <button className="btn" onClick={() => startEdit(null)}>{t('Cancel')}</button>}
+            <Button onClick={save}>{editing?.id ? t('Update') : t('Add {x}', { x: one })}</Button>
+            {editing?.id && <Button variant="outline" onClick={() => startEdit(null)}>{t('Cancel')}</Button>}
           </div>
         </div>
         <div className="card">
           <div className="toolbar">
-            <input className="search" placeholder={t('Search {x}…', { x: my ? many : many.toLowerCase() })} value={q} onChange={(e) => setQ(e.target.value)} />
+            <Input className="search" placeholder={t('Search {x}…', { x: my ? many : many.toLowerCase() })} value={q} onChange={(e) => setQ(e.target.value)} />
           </div>
           {shown.length ? (
             <table className="list stack">
@@ -132,24 +135,24 @@ export function MasterData({ tab }: { tab: Tab }) {
                     {M.cols.map((c) => <td key={c.h} className={c.cls || ''}>{c.v(x)}</td>)}
                     <td><div className="row-actions">
                       {tab === 'customers' && <>
-                        <button className="btn" onClick={() => navigate(`/docs/new/quotation?customer=${x.id}`)}>{t('+ Quotation')}</button>
-                        <button className="btn" onClick={() => navigate(`/docs/new/invoice?customer=${x.id}`)}>{t('+ Invoice')}</button>
+                        <Button variant="outline" onClick={() => navigate(`/docs/new/quotation?customer=${x.id}`)}>{t('+ Quotation')}</Button>
+                        <Button variant="outline" onClick={() => navigate(`/docs/new/invoice?customer=${x.id}`)}>{t('+ Invoice')}</Button>
                       </>}
-                      <button className="btn" onClick={() => startEdit(x)}>{t('Edit')}</button>
+                      <Button variant="outline" onClick={() => startEdit(x)}>{t('Edit')}</Button>
                       {tab === 'locations' ? (
                         // Locations are never deleted (stock history points at them); they're switched off instead.
-                        <button className="btn" onClick={async () => {
+                        <Button variant="outline" onClick={async () => {
                           await api(`${M.api}/${x.id}`, { method: 'PUT', body: { active: !x.active } });
                           await app.reloadMaster();
                           toast(t(x.active ? '{name} deactivated' : '{name} activated', { name: x.name }));
-                        }}>{t(x.active ? 'Deactivate' : 'Activate')}</button>
-                      ) : <button className="btn danger" onClick={async () => {
+                        }}>{t(x.active ? 'Deactivate' : 'Activate')}</Button>
+                      ) : <Button variant="destructive" onClick={async () => {
                         if (!confirm(t('Delete {name} from the {x} list? Saved quotations and invoices are not affected.', { name: x.name, x: one }))) return;
                         await api(`${M.api}/${x.id}`, { method: 'DELETE' });
                         if (editing?.id === x.id) startEdit(null);
                         await app.reloadMaster();
                         toast(t('{name} deleted', { name: x.name }));
-                      }}>{t('Delete')}</button>}
+                      }}>{t('Delete')}</Button>}
                     </div></td>
                   </tr>
                 ))}

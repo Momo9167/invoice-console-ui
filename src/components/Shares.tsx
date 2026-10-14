@@ -8,6 +8,8 @@ import type { DocDTO, ExpenseDTO, PayoutDTO } from '@/lib/types';
 import { useApp } from './AppContext';
 import { periodLabel, PeriodFilter } from './PeriodFilter';
 import { norm } from './Picker';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 function useMoney() {
   const [expenses, setExpenses] = useState<ExpenseDTO[] | null>(null);
@@ -70,13 +72,13 @@ export function SharesPage() {
         <div className="section" style={{ marginBottom: 16 }}>
           <h3>{t('Pay {name}', { name: owner })}</h3>
           <div className="grid3">
-            <label className="f">{t('Date')}<input className="i" type="date" value={pay.date} onChange={(ev) => setPay({ ...pay, date: ev.target.value })} /></label>
-            <label className="f">{t('Amount')}<input className="i" inputMode="decimal" autoFocus value={pay.amount} onChange={(ev) => setPay({ ...pay, amount: ev.target.value })} /></label>
-            <label className="f">{t('Note')}<input className="i" placeholder={t('optional')} value={pay.note} onChange={(ev) => setPay({ ...pay, note: ev.target.value })} /></label>
+            <label className="f">{t('Date')}<Input type="date" value={pay.date} onChange={(ev) => setPay({ ...pay, date: ev.target.value })} /></label>
+            <label className="f">{t('Amount')}<Input inputMode="decimal" autoFocus value={pay.amount} onChange={(ev) => setPay({ ...pay, amount: ev.target.value })} /></label>
+            <label className="f">{t('Note')}<Input placeholder={t('optional')} value={pay.note} onChange={(ev) => setPay({ ...pay, note: ev.target.value })} /></label>
           </div>
           <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
-            <button className="btn dark" disabled={!(num(pay.amount) > 0)} onClick={savePayout}>{t('Save payment')}</button>
-            <button className="btn" onClick={() => setPay(null)}>{t('Cancel')}</button>
+            <Button disabled={!(num(pay.amount) > 0)} onClick={savePayout}>{t('Save payment')}</Button>
+            <Button variant="outline" onClick={() => setPay(null)}>{t('Cancel')}</Button>
           </div>
         </div>
       )}
@@ -91,7 +93,7 @@ export function SharesPage() {
               </button>
             ))}
           </div>
-          <input className="search" placeholder={t('Search number or customer…')} value={q} onChange={(ev) => setQ(ev.target.value)} />
+          <Input className="search" placeholder={t('Search number or customer…')} value={q} onChange={(ev) => setQ(ev.target.value)} />
         </div>
         {shown.length ? (
           <table className="list cards">
@@ -133,10 +135,10 @@ export function SharesPage() {
             <div className="pay-row" key={p.id}>
               <div className="meta"><b>{fmtDate(p.date)}</b><span>{[p.note, p.createdBy].filter(Boolean).join(' · ') || '—'}</span></div>
               <div className="amt">{money(p.amount)}</div>
-              <button className="icon-btn del" title={t('Delete')} onClick={async () => {
+              <Button variant="ghost" size="icon-sm" className="text-muted-foreground hover:text-destructive" title={t('Delete')} onClick={async () => {
                 if (!confirm(t('Delete this payment of {amt}?', { amt: money(p.amount) }))) return;
                 await api(`/api/payouts/${p.id}`, { method: 'DELETE' }); reload();
-              }}>×</button>
+              }}>×</Button>
             </div>
           )) : <div className="pay-empty">{t('None in this period.')}</div>}
         </div>
@@ -184,13 +186,13 @@ export function SplitEditor({ id }: { id: string }) {
   return (
     <>
       <div className="ed-bar">
-        <button className="btn" onClick={() => navigate('/shares')}>{t('← Back')}</button>
+        <Button variant="outline" onClick={() => navigate('/shares')}>{t('← Back')}</Button>
         <h2>{t('Split')} {d.number}</h2>
         <span className={`badge ${done ? 'st-paid' : 'st-partial'}`}>{t(done ? 'Complete' : 'New')}</span>
         <div className="spacer" />
-        <button className="btn" onClick={() => navigate(`/docs/${d.id}`)}>{t('Open invoice')}</button>
-        {done && <button className="btn" disabled={busy} onClick={async () => { setD(await api(`/api/docs/${id}/split`, { method: 'DELETE' })); reloadDocs(); }}>{t('Reopen')}</button>}
-        <button className="btn dark" disabled={busy} onClick={save}>{t(done ? 'Save changes' : 'Save split')}</button>
+        <Button variant="outline" onClick={() => navigate(`/docs/${d.id}`)}>{t('Open invoice')}</Button>
+        {done && <Button variant="outline" disabled={busy} onClick={async () => { setD(await api(`/api/docs/${id}/split`, { method: 'DELETE' })); reloadDocs(); }}>{t('Reopen')}</Button>}
+        <Button disabled={busy} onClick={save}>{t(done ? 'Save changes' : 'Save split')}</Button>
       </div>
       <p className="pay-empty">{d.customer.name} · {fmtDate(d.date)} · {t('Only visible here — never on the customer’s invoice.')}</p>
       {stale && <p className="pay-empty" style={{ color: '#94600f' }}>{t('The invoice items changed after it was split. Check the shares and save again.')}</p>}
@@ -207,7 +209,7 @@ export function SplitEditor({ id }: { id: string }) {
                   <td className="r">{num(l.qty)}</td>
                   <td className="r hide-sm">{money(l.price)}</td>
                   <td className="r">{money(l.amount)}</td>
-                  <td className="r"><input className="i share-in" inputMode="decimal" placeholder="0" value={shares[i] ?? ''} onChange={(e) => setShares(shares.map((x, j) => (j === i ? e.target.value : x)))} /></td>
+                  <td className="r"><Input className="share-in" inputMode="decimal" placeholder="0" value={shares[i] ?? ''} onChange={(e) => setShares(shares.map((x, j) => (j === i ? e.target.value : x)))} /></td>
                   <td className={`r ${b > l.amount + 0.005 ? 'neg' : ''}`}><b>{money(b)}</b></td>
                   <td className="r">{money(l.amount - b)}</td>
                 </tr>

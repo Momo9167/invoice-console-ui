@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { api } from '@/lib/client';
 import type { UserDTO } from '@/lib/types';
 import { useApp } from './AppContext';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 // Everyone has the same access; this just manages who can log in.
 function MyPassword() {
@@ -22,13 +24,13 @@ function MyPassword() {
   return (
     <div className="section" id="password">
       <h3>{t('Change my password')} {me && <span style={{ textTransform: 'none', letterSpacing: 0, fontWeight: 500 }}>· {me.name} (@{me.username})</span>}</h3>
-      <label className="f">{t('Current password')}<input className="i" type="password" autoComplete="current-password" value={f.current} onChange={(e) => setF({ ...f, current: e.target.value })} /></label>
+      <label className="f">{t('Current password')}<Input type="password" autoComplete="current-password" value={f.current} onChange={(e) => setF({ ...f, current: e.target.value })} /></label>
       <div className="grid2" style={{ marginTop: 10 }}>
-        <label className="f">{t('New password')}<input className="i" type="password" autoComplete="new-password" value={f.next} onChange={(e) => setF({ ...f, next: e.target.value })} /></label>
-        <label className="f">{t('New password again')}<input className="i" type="password" autoComplete="new-password" value={f.again} onChange={(e) => setF({ ...f, again: e.target.value })} /></label>
+        <label className="f">{t('New password')}<Input type="password" autoComplete="new-password" value={f.next} onChange={(e) => setF({ ...f, next: e.target.value })} /></label>
+        <label className="f">{t('New password again')}<Input type="password" autoComplete="new-password" value={f.again} onChange={(e) => setF({ ...f, again: e.target.value })} /></label>
       </div>
       <div style={{ display: 'flex', gap: 8, marginTop: 12, alignItems: 'center' }}>
-        <button className="btn dark" disabled={!f.current || !f.next} onClick={save}>{t('Change password')}</button>
+        <Button disabled={!f.current || !f.next} onClick={save}>{t('Change password')}</Button>
         <span style={{ color: 'var(--danger)', fontSize: 13 }}>{err}</span>
       </div>
     </div>
@@ -65,26 +67,26 @@ export function UsersPanel() {
         {users.map((u) => (
           <div key={u.id} className={`user-row${u.active ? '' : ' off'}`}>
             <div className="meta"><b>{u.name}{u.id === me?.id && <span className="badge st-paid" style={{ marginLeft: 6 }}>{t('you')}</span>}</b><span>@{u.username}{!u.active && ` · ${t('Inactive')}`}</span></div>
-            <button className="btn" onClick={() => {
+            <Button variant="outline" onClick={() => {
               const pw = prompt(t('New password for {name} (at least 6 characters):', { name: u.name }));
               if (pw) update(u, { password: pw }, t('Password changed'));
-            }}>{t('Reset password')}</button>
+            }}>{t('Reset password')}</Button>
             {u.id !== me?.id && (
-              <button className="btn" onClick={() => update(u, { active: !u.active }, t(u.active ? '{name} deactivated' : '{name} activated', { name: u.name }))}>
+              <Button variant="outline" onClick={() => update(u, { active: !u.active }, t(u.active ? '{name} deactivated' : '{name} activated', { name: u.name }))}>
                 {t(u.active ? 'Deactivate' : 'Activate')}
-              </button>
+              </Button>
             )}
           </div>
         ))}
       </div>
       <h3 style={{ marginTop: 16 }}>{t('Add user')}</h3>
       <div className="grid2">
-        <label className="f">{t('Name')}<input className="i" value={form.name} placeholder={t('e.g. Uncle')} onChange={(e) => setForm({ ...form, name: e.target.value })} /></label>
-        <label className="f">{t('Username')}<input className="i" autoCapitalize="none" value={form.username} placeholder="e.g. uncle" onChange={(e) => setForm({ ...form, username: e.target.value.toLowerCase() })} /></label>
+        <label className="f">{t('Name')}<Input value={form.name} placeholder={t('e.g. Uncle')} onChange={(e) => setForm({ ...form, name: e.target.value })} /></label>
+        <label className="f">{t('Username')}<Input autoCapitalize="none" value={form.username} placeholder="e.g. uncle" onChange={(e) => setForm({ ...form, username: e.target.value.toLowerCase() })} /></label>
       </div>
-      <label className="f" style={{ marginTop: 10 }}>{t('Password')}<input className="i" type="password" autoComplete="new-password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} /></label>
+      <label className="f" style={{ marginTop: 10 }}>{t('Password')}<Input type="password" autoComplete="new-password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} /></label>
       <div style={{ display: 'flex', gap: 8, marginTop: 12, alignItems: 'center' }}>
-        <button className="btn dark" onClick={add} disabled={!form.name || !form.username || !form.password}>{t('Add user')}</button>
+        <Button onClick={add} disabled={!form.name || !form.username || !form.password}>{t('Add user')}</Button>
         <span style={{ color: 'var(--danger)', fontSize: 13 }}>{err}</span>
       </div>
     </div>

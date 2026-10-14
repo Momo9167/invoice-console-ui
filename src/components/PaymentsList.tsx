@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { addDays, fmtDate, num, PAY_METHODS, today } from '@/lib/calc';
 import { useApp } from './AppContext';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 type Preset = 'today' | 'month' | 'lastMonth' | 'year' | 'all' | 'custom';
 
@@ -72,8 +74,8 @@ export function PaymentsList() {
           {presets.map(([k, label]) => <button key={k} className={preset === k ? 'on' : ''} onClick={() => choose(k)}>{t(label)}</button>)}
         </div>
         <div className="range-dates">
-          <label>{t('From')}<input className="i" type="date" value={from} max={to || undefined} onChange={(e) => { setPreset('custom'); setRange([e.target.value, to]); }} /></label>
-          <label>{t('To')}<input className="i" type="date" value={to} min={from || undefined} onChange={(e) => { setPreset('custom'); setRange([from, e.target.value]); }} /></label>
+          <label>{t('From')}<Input type="date" value={from} max={to || undefined} onChange={(e) => { setPreset('custom'); setRange([e.target.value, to]); }} /></label>
+          <label>{t('To')}<Input type="date" value={to} min={from || undefined} onChange={(e) => { setPreset('custom'); setRange([from, e.target.value]); }} /></label>
         </div>
       </div>
 
@@ -98,8 +100,8 @@ export function PaymentsList() {
             <option value="">{t('All methods')}</option>
             {PAY_METHODS.map((m) => <option key={m} value={m}>{t(m)}</option>)}
           </select>
-          <input className="search" placeholder={t('Search receipt, invoice, customer or reference…')} value={q} onChange={(e) => setQ(e.target.value)} />
-          <button className="btn" onClick={exportCsv} disabled={!rows.length}>{t('Export CSV')}</button>
+          <Input className="search" placeholder={t('Search receipt, invoice, customer or reference…')} value={q} onChange={(e) => setQ(e.target.value)} />
+          <Button variant="outline" onClick={exportCsv} disabled={!rows.length}>{t('Export CSV')}</Button>
         </div>
         {rows.length ? (
           <table className="list cards">

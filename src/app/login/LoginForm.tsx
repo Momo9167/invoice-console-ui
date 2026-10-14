@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { translate } from '@/lib/i18n';
 import type { Lang } from '@/lib/types';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 export function LoginForm({ lang, company }: { lang: Lang; company: string }) {
   const t = (s: string) => translate(lang, s);
@@ -25,12 +27,12 @@ export function LoginForm({ lang, company }: { lang: Lang; company: string }) {
         <img src="/logo.jpg" alt="" />
         <h1>{company}</h1>
         <label className="f" style={{ textAlign: 'left' }}>{t('Username')}
-          <input className="i" autoFocus autoCapitalize="none" autoComplete="username" value={user} onChange={(e) => setUser(e.target.value)} />
+          <Input autoFocus autoCapitalize="none" autoComplete="username" value={user} onChange={(e) => setUser(e.target.value)} />
         </label>
         <label className="f" style={{ textAlign: 'left', marginTop: 10 }}>{t('Password')}
-          <input className="i" type="password" autoComplete="current-password" value={pw} onChange={(e) => setPw(e.target.value)} />
+          <Input type="password" autoComplete="current-password" value={pw} onChange={(e) => setPw(e.target.value)} />
         </label>
-        <button className="btn dark" style={{ width: '100%', justifyContent: 'center', marginTop: 14 }} disabled={busy || !pw || !user}>{t('Sign in')}</button>
+        <Button style={{ width: '100%', justifyContent: 'center', marginTop: 14 }} disabled={busy || !pw || !user}>{t('Sign in')}</Button>
         <div className="err">{err}</div>
       </form>
     </div>

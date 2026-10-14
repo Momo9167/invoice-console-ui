@@ -11,6 +11,9 @@ import { SerialInput } from './SerialInput';
 import { PaymentsPanel } from './PaymentsPanel';
 import { useSerials, useStock } from '@/lib/useStock';
 import { Sheet } from './Sheet';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 
 const LABEL = { quotation: 'Quotation', invoice: 'Invoice' } as const;
 const DUE_LABEL = { quotation: 'Valid Until', invoice: 'Due Date' } as const;
@@ -192,19 +195,19 @@ export function Editor({ initial, startDirty = false }: { initial: DocDTO; start
   return (
     <>
       <div className="ed-bar no-print">
-        <button className="btn" onClick={() => app.navigate('/')}>{t('← Back')}</button>
+        <Button variant="outline" onClick={() => app.navigate('/')}>{t('← Back')}</Button>
         <h2>{t(LABEL[d.type])} <span>{d.number}</span></h2>
         <span className={`dirty${dirty ? ' on' : ''}`}>{dirty ? t('● Unsaved changes') : d.id ? t('Saved') : ''}</span>
         <div className="spacer" />
         {d.id && <>
-          <button className="btn danger" onClick={del}>{t('Delete')}</button>
-          <button className="btn" onClick={() => openNew(d.type)}>{t('Duplicate')}</button>
+          <Button variant="destructive" onClick={del}>{t('Delete')}</Button>
+          <Button variant="outline" onClick={() => openNew(d.type)}>{t('Duplicate')}</Button>
         </>}
-        {d.id && d.type === 'quotation' && <button className="btn" onClick={() => openNew('invoice')}>{t('Convert to Invoice')}</button>}
-        {d.id && isInv && <button className="btn" onClick={toggleVoid}>{t(d.void ? 'Restore' : 'Void')}</button>}
-        <button className="btn" onClick={printDoc}>{t('Print')}</button>
-        <button className="btn primary" onClick={exportPdf} disabled={busy}>{busy ? t('Exporting…') : t('Export PDF')}</button>
-        <button className="btn dark" onClick={save} disabled={busy}>{t('Save')}</button>
+        {d.id && d.type === 'quotation' && <Button variant="outline" onClick={() => openNew('invoice')}>{t('Convert to Invoice')}</Button>}
+        {d.id && isInv && <Button variant="outline" onClick={toggleVoid}>{t(d.void ? 'Restore' : 'Void')}</Button>}
+        <Button variant="outline" onClick={printDoc}>{t('Print')}</Button>
+        <Button onClick={exportPdf} disabled={busy}>{busy ? t('Exporting…') : t('Export PDF')}</Button>
+        <Button onClick={save} disabled={busy}>{t('Save')}</Button>
       </div>
 
       <div className="editor">
@@ -212,12 +215,12 @@ export function Editor({ initial, startDirty = false }: { initial: DocDTO; start
           <div className="section">
             <h3>{t('Document')}</h3>
             <div className="grid2">
-              <label className="f">{t(LABEL[d.type])} #<input className="i" value={d.number} onChange={(e) => edit({ number: e.target.value })} /></label>
-              <label className="f">{t('Date')}<input className="i" type="date" value={d.date} onChange={(e) => edit({ date: e.target.value })} /></label>
+              <label className="f">{t(LABEL[d.type])} #<Input value={d.number} onChange={(e) => edit({ number: e.target.value })} /></label>
+              <label className="f">{t('Date')}<Input type="date" value={d.date} onChange={(e) => edit({ date: e.target.value })} /></label>
             </div>
             <div className="grid2" style={{ marginTop: 10 }}>
-              <label className="f">{t(DUE_LABEL[d.type])}<input className="i" list="due-opts" value={d.dueDate} onChange={(e) => edit({ dueDate: e.target.value })} /></label>
-              <label className="f">{t('Reference')}<input className="i" value={d.ref} placeholder={t('optional')} onChange={(e) => edit({ ref: e.target.value })} /></label>
+              <label className="f">{t(DUE_LABEL[d.type])}<Input list="due-opts" value={d.dueDate} onChange={(e) => edit({ dueDate: e.target.value })} /></label>
+              <label className="f">{t('Reference')}<Input value={d.ref} placeholder={t('optional')} onChange={(e) => edit({ ref: e.target.value })} /></label>
             </div>
             {isInv && (
               <label className="f" style={{ marginTop: 10 }}>{t('Take stock from')}
@@ -246,8 +249,8 @@ export function Editor({ initial, startDirty = false }: { initial: DocDTO; start
                 inputProps={{ placeholder: t('Type to search saved customers…') }}
               />
             </label>
-            <label className="f">{t('Address')}<textarea className="i" rows={2} value={d.customer.address} onChange={(e) => editCustomer({ address: e.target.value })} /></label>
-            <label className="f">{t('Phone')}<input className="i" value={d.customer.phone} placeholder="+95 9…" onChange={(e) => editCustomer({ phone: e.target.value })} /></label>
+            <label className="f">{t('Address')}<Textarea rows={2} value={d.customer.address} onChange={(e) => editCustomer({ address: e.target.value })} /></label>
+            <label className="f">{t('Phone')}<Input value={d.customer.phone} placeholder="+95 9…" onChange={(e) => editCustomer({ phone: e.target.value })} /></label>
             <div className="cust-hint">{custHint()}</div>
           </div>
 
@@ -266,16 +269,16 @@ export function Editor({ initial, startDirty = false }: { initial: DocDTO; start
                     empty={products.length ? t('No saved item matches') : ''}
                     inputProps={{ placeholder: t('Type to search saved items…') }}
                   />
-                  <button className="icon-btn" title={t('Move up')} disabled={i === 0} onClick={() => {
+                  <Button variant="ghost" size="icon-sm" className="text-muted-foreground" title={t('Move up')} disabled={i === 0} onClick={() => {
                     const items = [...d.items]; [items[i - 1], items[i]] = [items[i], items[i - 1]]; edit({ items });
-                  }}>↑</button>
-                  <button className="icon-btn del" title={t('Remove')} onClick={() => edit({ items: d.items.filter((_, j) => j !== i) })}>×</button>
+                  }}>↑</Button>
+                  <Button variant="ghost" size="icon-sm" className="text-muted-foreground hover:text-destructive" title={t('Remove')} onClick={() => edit({ items: d.items.filter((_, j) => j !== i) })}>×</Button>
                 </div>
                 <div className="item-grid">
-                  <label><span>{t('Qty')}</span><input className="i" inputMode="decimal" value={it.qty} onChange={(e) => editItem(i, { qty: e.target.value })} /></label>
-                  <label><span>{t('Unit')}</span><input className="i" value={it.unit} onChange={(e) => editItem(i, { unit: e.target.value })} /></label>
-                  <label><span>{t('Price')}</span><input className="i" inputMode="decimal" placeholder="0" value={it.price} onChange={(e) => editItem(i, { price: e.target.value })} /></label>
-                  <label><span>{t('Discount')}</span><input className="i" inputMode="decimal" placeholder="0" value={it.discount} onChange={(e) => editItem(i, { discount: e.target.value })} /></label>
+                  <label><span>{t('Qty')}</span><Input inputMode="decimal" value={it.qty} onChange={(e) => editItem(i, { qty: e.target.value })} /></label>
+                  <label><span>{t('Unit')}</span><Input value={it.unit} onChange={(e) => editItem(i, { unit: e.target.value })} /></label>
+                  <label><span>{t('Price')}</span><Input inputMode="decimal" placeholder="0" value={it.price} onChange={(e) => editItem(i, { price: e.target.value })} /></label>
+                  <label><span>{t('Discount')}</span><Input inputMode="decimal" placeholder="0" value={it.discount} onChange={(e) => editItem(i, { discount: e.target.value })} /></label>
                 </div>
                 {(() => {
                   const p = isInv && d.locationId ? linkedProduct(it) : undefined;
@@ -296,21 +299,21 @@ export function Editor({ initial, startDirty = false }: { initial: DocDTO; start
                 <div className="cust-hint item-hint">{itemHint(it, i)}</div>
               </div>
             ))}
-            <button className="btn" style={{ width: '100%', justifyContent: 'center' }} onClick={() => edit({ items: [...d.items, blankItem()] })}>{t('+ Add item')}</button>
+            <Button variant="outline" style={{ width: '100%', justifyContent: 'center' }} onClick={() => edit({ items: [...d.items, blankItem()] })}>{t('+ Add item')}</Button>
           </div>
 
           <div className="section">
             <h3>{t('Charges & Notes')}</h3>
             <div className="grid2">
-              <label className="f">{t('Delivery fee')} ({settings.currency})<input className="i" inputMode="decimal" placeholder="0" value={d.deliveryFee} onChange={(e) => edit({ deliveryFee: e.target.value })} /></label>
-              <label className="f">{t('Service charge')} ({settings.currency})<input className="i" inputMode="decimal" placeholder="0" value={d.serviceCharge} onChange={(e) => edit({ serviceCharge: e.target.value })} /></label>
+              <label className="f">{t('Delivery fee')} ({settings.currency})<Input inputMode="decimal" placeholder="0" value={d.deliveryFee} onChange={(e) => edit({ deliveryFee: e.target.value })} /></label>
+              <label className="f">{t('Service charge')} ({settings.currency})<Input inputMode="decimal" placeholder="0" value={d.serviceCharge} onChange={(e) => edit({ serviceCharge: e.target.value })} /></label>
             </div>
             <div className="grid2" style={{ marginTop: 10 }}>
               <div />
-              <label className="f">{t('Service discount')} ({settings.currency})<input className="i" inputMode="decimal" placeholder="0" value={d.serviceDiscount} onChange={(e) => edit({ serviceDiscount: e.target.value })} /></label>
+              <label className="f">{t('Service discount')} ({settings.currency})<Input inputMode="decimal" placeholder="0" value={d.serviceDiscount} onChange={(e) => edit({ serviceDiscount: e.target.value })} /></label>
             </div>
             {c.serviceDiscount < num(d.serviceDiscount) && <div className="pay-empty" style={{ color: 'var(--danger)', marginTop: 6 }}>{t('Service discount can’t be more than the service charge.')}</div>}
-            <label className="f" style={{ marginTop: 10 }}>{t('Notes / terms')}<textarea className="i" rows={3} placeholder={t('e.g. 1 year warranty on cameras')} value={d.notes} onChange={(e) => edit({ notes: e.target.value })} /></label>
+            <label className="f" style={{ marginTop: 10 }}>{t('Notes / terms')}<Textarea rows={3} placeholder={t('e.g. 1 year warranty on cameras')} value={d.notes} onChange={(e) => edit({ notes: e.target.value })} /></label>
             <div style={{ marginTop: 14 }}>
               <div className="sum"><span>{t('Subtotal')}</span><span>{money(c.subtotal)}</span></div>
               <div className="sum"><span>{t('Delivery fee')}</span><span>{money(c.delivery)}</span></div>

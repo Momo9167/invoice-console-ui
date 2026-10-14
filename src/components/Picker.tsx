@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState, type InputHTMLAttributes, type ReactNode } from 'react';
+import { Input } from '@/components/ui/input';
 
 const norm = (v: unknown) => String(v ?? '').trim().toLowerCase();
 
@@ -26,8 +27,7 @@ export function Picker<T>({
 
   return (
     <div className="ac-wrap" style={{ flex: 1 }}>
-      <input
-        className="i"
+      <Input
         autoComplete="off"
         {...inputProps}
         value={value}

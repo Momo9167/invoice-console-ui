@@ -5,6 +5,8 @@ import { calc, daysBetween, dueDateOf, EPS, fmtDate, statusOf, STATUSES, today }
 import type { DocType, Status } from '@/lib/types';
 import { useApp } from './AppContext';
 import { StatusBadge } from './PaymentsPanel';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 const PLURAL = { quotation: 'Quotations', invoice: 'Invoices' } as const;
 const LABEL = { quotation: 'Quotation', invoice: 'Invoice' } as const;
@@ -52,7 +54,7 @@ export function DocumentsList() {
             <option value="">{t('All years')}</option>
             {years.map((y) => <option key={y} value={y}>{y}</option>)}
           </select>
-          {(month || year) && <button className="btn" onClick={() => { setMonth(''); setYear(''); }}>{t('Clear')}</button>}
+          {(month || year) && <Button variant="outline" onClick={() => { setMonth(''); setYear(''); }}>{t('Clear')}</Button>}
         </div>
       </div>
       <div className="stats">
@@ -76,7 +78,7 @@ export function DocumentsList() {
               {STATUSES.map((k) => <option key={k} value={k}>{t('status.' + k)}</option>)}
             </select>
           )}
-          <input className="search" placeholder={t('Search number, customer or phone…')} value={q} onChange={(e) => setQ(e.target.value)} />
+          <Input className="search" placeholder={t('Search number, customer or phone…')} value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
         {shown.length ? (
           <table className="list cards">

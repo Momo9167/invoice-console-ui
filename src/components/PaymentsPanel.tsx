@@ -5,6 +5,8 @@ import { calc, daysBetween, dueDateOf, EPS, fmtDate, num, PAY_METHODS, statusOf,
 import { api } from '@/lib/client';
 import type { DocDTO, PaymentDTO, Status } from '@/lib/types';
 import { useApp } from './AppContext';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 export function StatusBadge({ st }: { st: Status | null }) {
   const { t } = useApp();
@@ -86,11 +88,11 @@ export function PaymentsPanel({ doc: d, onDoc, ensureSaved }: {
                 <span>{[p.method && t(p.method), p.reference, p.note].filter(Boolean).join(' · ') || '—'}</span>
               </div>
               <div className="amt">{money(p.amount)}</div>
-              <button className="icon-btn" title={t('Edit')} onClick={() => { setErr(''); setForm({ ...p, editing: true }); }}>✎</button>
-              <button className="icon-btn del" title={t('Delete')} onClick={() => {
+              <Button variant="ghost" size="icon-sm" className="text-muted-foreground" title={t('Edit')} onClick={() => { setErr(''); setForm({ ...p, editing: true }); }}>✎</Button>
+              <Button variant="ghost" size="icon-sm" className="text-muted-foreground hover:text-destructive" title={t('Delete')} onClick={() => {
                 if (!confirm(t('Delete payment {num} of {amt}?', { num: p.number, amt: money(p.amount) }))) return;
                 run((id) => api<{ doc: DocDTO }>(`/api/docs/${id}/payments/${p.id}`, { method: 'DELETE' }), () => t('Payment deleted'));
-              }}>×</button>
+              }}>×</Button>
             </div>
           ))}
         </div>
@@ -103,10 +105,10 @@ export function PaymentsPanel({ doc: d, onDoc, ensureSaved }: {
           <h3 style={{ marginBottom: 10 }}>{form.editing ? t('Edit {num}', { num: form.number || t('payment') }) : t('Record payment')}</h3>
           <div className="grid2">
             <label className="f">{t('Amount')}
-              <input className="i" inputMode="decimal" autoFocus value={form.amount ?? ''} onChange={(e) => setForm({ ...form, amount: e.target.value })}
+              <Input inputMode="decimal" autoFocus value={form.amount ?? ''} onChange={(e) => setForm({ ...form, amount: e.target.value })}
                 onKeyDown={(e) => { if (e.key === 'Enter') submit(); }} />
             </label>
-            <label className="f">{t('Payment date')}<input className="i" type="date" value={form.date || ''} onChange={(e) => setForm({ ...form, date: e.target.value })} /></label>
+            <label className="f">{t('Payment date')}<Input type="date" value={form.date || ''} onChange={(e) => setForm({ ...form, date: e.target.value })} /></label>
           </div>
           <div className="grid2" style={{ marginTop: 10 }}>
             <label className="f">{t('Method')}
@@ -114,26 +116,26 @@ export function PaymentsPanel({ doc: d, onDoc, ensureSaved }: {
                 {PAY_METHODS.map((m) => <option key={m} value={m}>{t(m)}</option>)}
               </select>
             </label>
-            <label className="f">{t('Reference / Txn ID')}<input className="i" placeholder={t('optional')} value={form.reference || ''} onChange={(e) => setForm({ ...form, reference: e.target.value })} /></label>
+            <label className="f">{t('Reference / Txn ID')}<Input placeholder={t('optional')} value={form.reference || ''} onChange={(e) => setForm({ ...form, reference: e.target.value })} /></label>
           </div>
-          <label className="f" style={{ marginTop: 10 }}>{t('Note')}<input className="i" placeholder={t('optional')} value={form.note || ''} onChange={(e) => setForm({ ...form, note: e.target.value })} /></label>
+          <label className="f" style={{ marginTop: 10 }}>{t('Note')}<Input placeholder={t('optional')} value={form.note || ''} onChange={(e) => setForm({ ...form, note: e.target.value })} /></label>
           <div style={{ display: 'flex', gap: 8, marginTop: 12, alignItems: 'center', flexWrap: 'wrap' }}>
-            <button className="btn dark" disabled={busy} onClick={submit}>{t(form.editing ? 'Update payment' : 'Save payment')}</button>
-            <button className="btn" onClick={() => { setForm(null); setErr(''); }}>{t('Cancel')}</button>
+            <Button disabled={busy} onClick={submit}>{t(form.editing ? 'Update payment' : 'Save payment')}</Button>
+            <Button variant="outline" onClick={() => { setForm(null); setErr(''); }}>{t('Cancel')}</Button>
             <span style={{ fontSize: 12, color: 'var(--muted)' }}>{t('Max {amt}', { amt: money(maxForForm) })}</span>
           </div>
           <div className="err">{err && t(err)}</div>
         </div>
       ) : (
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-          <button className="btn dark" disabled={c.balance <= EPS || busy} onClick={() => {
+          <Button disabled={c.balance <= EPS || busy} onClick={() => {
             setErr(''); setForm({ editing: false, amount: c.balance > 0 ? String(Math.round(c.balance * 100) / 100) : '', date: today(), method: 'Cash' });
-          }}>{t('+ Record payment')}</button>
+          }}>{t('+ Record payment')}</Button>
           {c.balance > EPS && (
-            <button className="btn" disabled={busy} onClick={() => {
+            <Button variant="outline" disabled={busy} onClick={() => {
               if (!confirm(t('Record a payment of {amt} dated today and mark {num} as paid?', { amt: money(c.balance), num: d.number }))) return;
               run((id) => api<{ doc: DocDTO }>(`/api/docs/${id}/payments`, { method: 'POST', body: { amount: Math.round(c.balance * 100) / 100, date: today(), method: 'Cash' } }), () => t('Marked as paid'));
-            }}>{t('Mark as fully paid')}</button>
+            }}>{t('Mark as fully paid')}</Button>
           )}
         </div>
       )}

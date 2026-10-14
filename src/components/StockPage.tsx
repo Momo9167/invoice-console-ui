@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { useStock } from '@/lib/useStock';
 import { useApp } from './AppContext';
 import { norm } from './Picker';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 export function StockPage() {
   const { t, money, navigate } = useApp();
@@ -28,9 +30,9 @@ export function StockPage() {
       <div className="list-head">
         <h2>{t('Stock')}</h2>
         <div className="spacer" />
-        <button className="btn" onClick={() => navigate('/stock/adjust')}>{t('Adjust stock')}</button>
-        <button className="btn" onClick={() => navigate('/transfers/new')}>{t('+ Transfer')}</button>
-        <button className="btn primary" onClick={() => navigate('/purchases/new')}>{t('+ Purchase order')}</button>
+        <Button variant="outline" onClick={() => navigate('/stock/adjust')}>{t('Adjust stock')}</Button>
+        <Button variant="outline" onClick={() => navigate('/transfers/new')}>{t('+ Transfer')}</Button>
+        <Button onClick={() => navigate('/purchases/new')}>{t('+ Purchase order')}</Button>
       </div>
       <div className="stats">
         <div className="stat"><div className="k">{t('Units in stock')}</div><div className="v">{units}</div><div className="s">{loc ? locs.find((l) => l.id === loc)?.name : t('All locations')}</div></div>
@@ -45,7 +47,7 @@ export function StockPage() {
             {locs.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}
           </select>
           <label className="check"><input type="checkbox" checked={hideZero} onChange={(e) => setHideZero(e.target.checked)} /> {t('Hide items with no stock')}</label>
-          <input className="search" placeholder={t('Search items…')} value={q} onChange={(e) => setQ(e.target.value)} />
+          <Input className="search" placeholder={t('Search items…')} value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
         {rows.length ? (
           <table className="list cards stock">

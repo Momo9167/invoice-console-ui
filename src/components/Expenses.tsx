@@ -7,6 +7,8 @@ import { inPeriod } from '@/lib/earnings';
 import type { ExpenseDTO } from '@/lib/types';
 import { useApp } from './AppContext';
 import { periodLabel, PeriodFilter } from './PeriodFilter';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 export const EXPENSE_CATEGORIES = ['Courier', 'Transport between branches', 'Installation materials', 'Tools', 'Phone / internet', 'Rent', 'Other'];
 const blank = (): ExpenseDTO => ({ date: today(), category: 'Courier', amount: '', paidFrom: 'cash', note: '' });
@@ -61,8 +63,8 @@ export function ExpensesPage() {
         <div className="section">
           <h3>{t(form.id ? 'Edit expense' : 'Add expense')}</h3>
           <div className="grid2">
-            <label className="f">{t('Date')}<input className="i" type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} /></label>
-            <label className="f">{t('Amount')}<input className="i" inputMode="decimal" placeholder="0" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} /></label>
+            <label className="f">{t('Date')}<Input type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} /></label>
+            <label className="f">{t('Amount')}<Input inputMode="decimal" placeholder="0" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} /></label>
           </div>
           <label className="f" style={{ marginTop: 10 }}>{t('Category')}
             <select className="i" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>
@@ -75,10 +77,10 @@ export function ExpensesPage() {
               <button className={form.paidFrom === 'owner' ? 'on' : ''} onClick={() => setForm({ ...form, paidFrom: 'owner' })}>{t('{name} paid himself', { name: owner })}</button>
             </div>
           </div>
-          <label className="f" style={{ marginTop: 10 }}>{t('Note')}<input className="i" placeholder={t('e.g. bus fee Myawaddy → Bago, TR003')} value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} /></label>
+          <label className="f" style={{ marginTop: 10 }}>{t('Note')}<Input placeholder={t('e.g. bus fee Myawaddy → Bago, TR003')} value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} /></label>
           <div style={{ display: 'flex', gap: 8, marginTop: 14, alignItems: 'center' }}>
-            <button className="btn dark" disabled={!(num(form.amount) > 0)} onClick={save}>{t(form.id ? 'Update' : 'Add expense')}</button>
-            {form.id && <button className="btn" onClick={() => setForm(blank())}>{t('Cancel')}</button>}
+            <Button disabled={!(num(form.amount) > 0)} onClick={save}>{t(form.id ? 'Update' : 'Add expense')}</Button>
+            {form.id && <Button variant="outline" onClick={() => setForm(blank())}>{t('Cancel')}</Button>}
             <span style={{ color: 'var(--danger)', fontSize: 13 }}>{err}</span>
           </div>
         </div>
@@ -95,11 +97,11 @@ export function ExpensesPage() {
                     <td className="hide-sm c-type">{r.paidFrom === 'owner' ? owner : t('{name}’s cash', { name: partner })}</td>
                     <td className="r c-amt">{money(r.amount)}</td>
                     <td className="c-status"><div className="row-actions">
-                      <button className="btn" onClick={() => { setForm({ ...r, amount: String(num(r.amount)) }); scrollTo(0, 0); }}>{t('Edit')}</button>
-                      <button className="btn danger" onClick={async () => {
+                      <Button variant="outline" onClick={() => { setForm({ ...r, amount: String(num(r.amount)) }); scrollTo(0, 0); }}>{t('Edit')}</Button>
+                      <Button variant="destructive" onClick={async () => {
                         if (!confirm(t('Delete this expense of {amt}?', { amt: money(r.amount) }))) return;
                         await api(`/api/expenses/${r.id}`, { method: 'DELETE' }); load();
-                      }}>{t('Delete')}</button>
+                      }}>{t('Delete')}</Button>
                     </div></td>
                   </tr>
                 ))}

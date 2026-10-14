@@ -4,6 +4,8 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState, ty
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/client';
 import { translate } from '@/lib/i18n';
+import { toast as sonner } from 'sonner';
+import { Toaster } from '@/components/ui/sonner';
 import type { CustomerDTO, DocDTO, LocationDTO, ProductDTO, Settings, UserDTO } from '@/lib/types';
 
 type T = (s: string, v?: Record<string, unknown>) => string;
@@ -43,9 +45,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [me, setMe] = useState<UserDTO | null>(null);
   const [masterReady, setMasterReady] = useState(false);
   const [docs, setDocs] = useState<DocDTO[]>([]);
-  const [toastMsg, setToastMsg] = useState('');
-  const [toastOn, setToastOn] = useState(false);
-  const toastTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const dirtyRef = useRef(false);
 
   const reloadMaster = useCallback(async () => {
@@ -80,11 +79,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const t: T = useCallback((s, v) => translate(lang, s, v), [lang]);
 
-  const toast = useCallback((msg: string) => {
-    setToastMsg(msg); setToastOn(true);
-    clearTimeout(toastTimer.current);
-    toastTimer.current = setTimeout(() => setToastOn(false), 1800);
-  }, []);
+  const toast = useCallback((msg: string) => { sonner(msg); }, []);
 
   const confirmLeave = useCallback(() => {
     if (!dirtyRef.current) return true;
@@ -107,7 +102,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       toast, setDirty: (v) => { dirtyRef.current = v; }, confirmLeave, navigate,
     }}>
       {children}
-      <div className={`toast${toastOn ? ' show' : ''}`}>{toastMsg}</div>
+      <Toaster position="bottom-center" />
     </AppCtx.Provider>
   );
 }

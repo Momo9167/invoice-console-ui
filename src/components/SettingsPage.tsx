@@ -5,6 +5,9 @@ import { api } from '@/lib/client';
 import type { Settings } from '@/lib/types';
 import { useApp } from './AppContext';
 import { UsersPanel } from './UsersPanel';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 
 export function SettingsPage() {
   const app = useApp();
@@ -13,8 +16,8 @@ export function SettingsPage() {
   const set = (k: keyof Settings, v: string) => setS({ ...s, [k]: v });
   const field = (k: keyof Settings, label: string, ta = false) => (
     <label className="f">{t(label)}
-      {ta ? <textarea className="i" rows={2} value={String(s[k] ?? '')} onChange={(e) => set(k, e.target.value)} />
-        : <input className="i" value={String(s[k] ?? '')} onChange={(e) => set(k, e.target.value)} />}
+      {ta ? <Textarea rows={2} value={String(s[k] ?? '')} onChange={(e) => set(k, e.target.value)} />
+        : <Input value={String(s[k] ?? '')} onChange={(e) => set(k, e.target.value)} />}
     </label>
   );
   const langSel = (k: 'docLang', label: string) => (
@@ -55,11 +58,11 @@ export function SettingsPage() {
         <div className="section"><h3>{t('Logo')}</h3>
           <p style={{ color: 'var(--muted)', lineHeight: 1.6 }} dangerouslySetInnerHTML={{ __html: t('To change the logo, replace <code>public/logo.jpg</code> in the app folder.') }} />
         </div>
-        <div><button className="btn dark" onClick={async () => {
+        <div><Button onClick={async () => {
           const saved = await api<Settings>('/api/settings', { method: 'PUT', body: s });
           app.setSettings(saved); setS(saved);
           toast(t('Settings saved'));
-        }}>{t('Save settings')}</button></div>
+        }}>{t('Save settings')}</Button></div>
       </div>
     </div>
   );

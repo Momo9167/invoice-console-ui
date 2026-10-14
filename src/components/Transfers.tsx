@@ -9,6 +9,9 @@ import type { PurchaseDTO, TransferDTO, TransferStatus } from '@/lib/types';
 import { useApp } from './AppContext';
 import { blankLine, LinesEditor, linesPayload, type Line } from './LinesEditor';
 import { norm } from './Picker';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 
 const STATUSES: TransferStatus[] = ['pending', 'delivering', 'received', 'cancelled'];
 export const when = (iso?: string | null) => (iso ? new Date(iso).toLocaleString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '');
@@ -37,7 +40,7 @@ export function TransfersList() {
       <div className="list-head">
         <h2>{t('Transfers')}</h2>
         <div className="spacer" />
-        <button className="btn primary" onClick={() => navigate('/transfers/new')}>{t('+ Transfer')}</button>
+        <Button onClick={() => navigate('/transfers/new')}>{t('+ Transfer')}</Button>
       </div>
       <div className="card">
         <div className="toolbar">
@@ -45,7 +48,7 @@ export function TransfersList() {
             <button className={!status ? 'on' : ''} onClick={() => setStatus('')}>{t('All')}</button>
             {STATUSES.map((s) => <button key={s} className={status === s ? 'on' : ''} onClick={() => setStatus(s)}>{t('tr.' + s)} <span className="cnt">{count(s)}</span></button>)}
           </div>
-          <input className="search" placeholder={t('Search transfer no. or item…')} value={q} onChange={(e) => setQ(e.target.value)} />
+          <Input className="search" placeholder={t('Search transfer no. or item…')} value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
         {shown.length ? (
           <table className="list cards">
@@ -104,11 +107,11 @@ function TransferForm({ initial, onSaved }: { initial: Partial<TransferDTO> & { 
   return (
     <>
       <div className="ed-bar">
-        <button className="btn" onClick={() => navigate(initial.id ? `/transfers/${initial.id}` : '/transfers')}>{t('← Back')}</button>
+        <Button variant="outline" onClick={() => navigate(initial.id ? `/transfers/${initial.id}` : '/transfers')}>{t('← Back')}</Button>
         <h2>{initial.id ? t('Edit {num}', { num: initial.number }) : t('New transfer')}</h2>
         <div className="spacer" />
-        <button className="btn" disabled={busy} onClick={() => save(false)}>{t('Save as pending')}</button>
-        <button className="btn dark" disabled={busy} onClick={() => save(true)}>{t('Save & send')}</button>
+        <Button variant="outline" disabled={busy} onClick={() => save(false)}>{t('Save as pending')}</Button>
+        <Button disabled={busy} onClick={() => save(true)}>{t('Save & send')}</Button>
       </div>
       <div className="editor single">
         <div className="form">
@@ -126,7 +129,7 @@ function TransferForm({ initial, onSaved }: { initial: Partial<TransferDTO> & { 
                   {active.filter((l) => l.id !== fromId).map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}
                 </select>
               </label>
-              <label className="f">{t('Date')}<input className="i" type="date" value={date} onChange={(e) => setDate(e.target.value)} /></label>
+              <label className="f">{t('Date')}<Input type="date" value={date} onChange={(e) => setDate(e.target.value)} /></label>
             </div>
           </div>
           <div className="section">
@@ -134,7 +137,7 @@ function TransferForm({ initial, onSaved }: { initial: Partial<TransferDTO> & { 
             <LinesEditor lines={lines} onChange={setLines} available={(pid) => qty(pid, fromId)} serialSuggestions={serials} />
           </div>
           <div className="section">
-            <label className="f">{t('Note')}<textarea className="i" rows={2} placeholder={t('e.g. car / bus / driver')} value={notes} onChange={(e) => setNotes(e.target.value)} /></label>
+            <label className="f">{t('Note')}<Textarea rows={2} placeholder={t('e.g. car / bus / driver')} value={notes} onChange={(e) => setNotes(e.target.value)} /></label>
             <p className="pay-empty" style={{ marginTop: 10 }}>{t('Pending changes nothing. Sending takes the stock out of the From location; receiving adds it at the To location.')}</p>
             <div style={{ color: 'var(--danger)', fontSize: 13 }}>{err}</div>
           </div>
@@ -202,23 +205,23 @@ export function TransferView({ id }: { id: string }) {
   return (
     <>
       <div className="ed-bar">
-        <button className="btn" onClick={() => navigate('/transfers')}>{t('← Back')}</button>
+        <Button variant="outline" onClick={() => navigate('/transfers')}>{t('← Back')}</Button>
         <h2>{t('Transfer')} {tr.number}</h2>
         <TransferBadge s={tr.status} />
         <div className="spacer" />
         {tr.status === 'pending' && <>
-          <button className="btn danger" disabled={busy} onClick={async () => {
+          <Button variant="destructive" disabled={busy} onClick={async () => {
             if (!confirm(t('Delete {num}?', { num: tr.number }))) return;
             await api(`/api/transfers/${id}`, { method: 'DELETE' }); toast(t('Deleted')); navigate('/transfers');
-          }}>{t('Delete')}</button>
-          <button className="btn" onClick={() => setMode('edit')}>{t('Edit')}</button>
-          <button className="btn dark" disabled={busy} onClick={() => act('send', t('{num} sent · stock on the way', { num: tr.number }))}>{t('Send')}</button>
+          }}>{t('Delete')}</Button>
+          <Button variant="outline" onClick={() => setMode('edit')}>{t('Edit')}</Button>
+          <Button disabled={busy} onClick={() => act('send', t('{num} sent · stock on the way', { num: tr.number }))}>{t('Send')}</Button>
         </>}
         {tr.status === 'delivering' && mode === 'view' && <>
-          <button className="btn danger" disabled={busy} onClick={() => confirm(t('Cancel {num}? The stock goes back to {loc}.', { num: tr.number, loc: loc(tr.fromId) })) && act('cancel', t('Transfer cancelled'))}>{t('Cancel transfer')}</button>
-          <button className="btn dark" onClick={startReceive}>{t('Receive')}</button>
+          <Button variant="destructive" disabled={busy} onClick={() => confirm(t('Cancel {num}? The stock goes back to {loc}.', { num: tr.number, loc: loc(tr.fromId) })) && act('cancel', t('Transfer cancelled'))}>{t('Cancel transfer')}</Button>
+          <Button onClick={startReceive}>{t('Receive')}</Button>
         </>}
-        {tr.status === 'received' && <button className="btn primary" onClick={() => navigate(`/transfers/new?prev=${tr.id}`)}>{t('Forward to…')}</button>}
+        {tr.status === 'received' && <Button onClick={() => navigate(`/transfers/new?prev=${tr.id}`)}>{t('Forward to…')}</Button>}
       </div>
 
       <div className="route-banner">
@@ -260,7 +263,7 @@ export function TransferView({ id }: { id: string }) {
                   <td className="r c-sub">{i.qty}</td>
                   <td className="r c-amt">
                     {mode === 'receive'
-                      ? <input className="i qty-in" inputMode="numeric" value={g.qty} disabled={i.serials.length > 0} onChange={(e) => setGot({ ...got, [i.id!]: { ...g, qty: e.target.value } })} />
+                      ? <Input className="qty-in" inputMode="numeric" value={g.qty} disabled={i.serials.length > 0} onChange={(e) => setGot({ ...got, [i.id!]: { ...g, qty: e.target.value } })} />
                       : i.receivedQty ?? '—'}
                     {short > 0 && <span className="sub-note" style={{ color: 'var(--danger)' }}>{t('{n} short', { n: short })}</span>}
                   </td>
@@ -275,20 +278,20 @@ export function TransferView({ id }: { id: string }) {
         <div className="section">
           <p className="pay-empty">{t('Check what actually arrived at {loc}. Untick any serial that is missing; anything short is recorded.', { loc: loc(tr.toId) })}</p>
           <div style={{ display: 'flex', gap: 8 }}>
-            <button className="btn dark" disabled={busy} onClick={() => act('receive', t('{num} received at {loc}', { num: tr.number, loc: loc(tr.toId) }), {
+            <Button disabled={busy} onClick={() => act('receive', t('{num} received at {loc}', { num: tr.number, loc: loc(tr.toId) }), {
               items: tr.items.map((i) => ({ id: i.id, receivedQty: Number(got[i.id!].qty), receivedSerials: i.serials.length ? got[i.id!].serials : undefined })),
-            })}>{t('Confirm received')}</button>
-            <button className="btn" onClick={() => setMode('view')}>{t('Cancel')}</button>
+            })}>{t('Confirm received')}</Button>
+            <Button variant="outline" onClick={() => setMode('view')}>{t('Cancel')}</Button>
           </div>
         </div>
       )}
       {tr.status === 'pending' && (
-        <div className="section"><button className="btn danger" disabled={busy} onClick={() => confirm(t('Cancel {num}?', { num: tr.number })) && act('cancel', t('Transfer cancelled'))}>{t('Cancel transfer')}</button></div>
+        <div className="section"><Button variant="destructive" disabled={busy} onClick={() => confirm(t('Cancel {num}?', { num: tr.number })) && act('cancel', t('Transfer cancelled'))}>{t('Cancel transfer')}</Button></div>
       )}
       {tr.notes && <div className="section"><h3>{t('Note')}</h3><p>{tr.notes}</p></div>}
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-        {tr.purchaseOrderId && <button className="btn" onClick={() => navigate(`/purchases/${tr.purchaseOrderId}`)}>{t('Open purchase order')}</button>}
-        {tr.previousId && <button className="btn" onClick={() => navigate(`/transfers/${tr.previousId}`)}>{t('Previous transfer')}</button>}
+        {tr.purchaseOrderId && <Button variant="outline" onClick={() => navigate(`/purchases/${tr.purchaseOrderId}`)}>{t('Open purchase order')}</Button>}
+        {tr.previousId && <Button variant="outline" onClick={() => navigate(`/transfers/${tr.previousId}`)}>{t('Previous transfer')}</Button>}
       </div>
     </>
   );

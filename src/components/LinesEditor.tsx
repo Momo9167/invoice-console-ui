@@ -5,6 +5,8 @@ import type { ProductDTO } from '@/lib/types';
 import { useApp } from './AppContext';
 import { norm, Picker } from './Picker';
 import { SerialInput } from './SerialInput';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 export interface Line { productId: string; label: string; qty: string | number; unitCost?: string | number; serials: string[] }
 export const blankLine = (): Line => ({ productId: '', label: '', qty: 1, unitCost: '', serials: [] });
@@ -40,14 +42,14 @@ export function LinesEditor({ lines, onChange, withCost, available, serialSugges
                 empty={products.length ? t('No saved item matches') : t('Add items in Master Data first')}
                 inputProps={{ placeholder: t('Choose an item…') }}
               />
-              <button className="icon-btn del" title={t('Remove')} onClick={() => onChange(lines.filter((_, j) => j !== i))}>×</button>
+              <Button variant="ghost" size="icon-sm" className="text-muted-foreground hover:text-destructive" title={t('Remove')} onClick={() => onChange(lines.filter((_, j) => j !== i))}>×</Button>
             </div>
             {!l.productId && l.label && <div className="pay-empty" style={{ color: 'var(--danger)', margin: '0 0 6px' }}>{t('Pick the item from the list')}</div>}
             <div className="item-grid" style={{ gridTemplateColumns: withCost ? '80px 1fr 1fr' : '80px 1fr' }}>
-              <label><span>{t('Qty')}</span><input className="i" inputMode="numeric" value={l.qty} onChange={(e) => set(i, { qty: e.target.value })} /></label>
-              {withCost && <label><span>{t('Unit cost')}</span><input className="i" inputMode="decimal" placeholder="0" value={l.unitCost ?? ''} onChange={(e) => set(i, { unitCost: e.target.value })} /></label>}
+              <label><span>{t('Qty')}</span><Input inputMode="numeric" value={l.qty} onChange={(e) => set(i, { qty: e.target.value })} /></label>
+              {withCost && <label><span>{t('Unit cost')}</span><Input inputMode="decimal" placeholder="0" value={l.unitCost ?? ''} onChange={(e) => set(i, { unitCost: e.target.value })} /></label>}
               {withCost
-                ? <label><span>{t('Line cost')}</span><input className="i" readOnly value={money(num(l.qty) * num(l.unitCost))} /></label>
+                ? <label><span>{t('Line cost')}</span><Input readOnly value={money(num(l.qty) * num(l.unitCost))} /></label>
                 : avail !== null && <div className={`avail${avail < num(l.qty) ? ' low' : ''}`}><span>{t('Available')}</span><b>{avail}</b></div>}
             </div>
             {p?.serialTracked && (
@@ -57,7 +59,7 @@ export function LinesEditor({ lines, onChange, withCost, available, serialSugges
           </div>
         );
       })}
-      <button className="btn" style={{ width: '100%', justifyContent: 'center' }} onClick={() => onChange([...lines, blankLine()])}>{t('+ Add item')}</button>
+      <Button variant="outline" style={{ width: '100%', justifyContent: 'center' }} onClick={() => onChange([...lines, blankLine()])}>{t('+ Add item')}</Button>
     </>
   );
 }

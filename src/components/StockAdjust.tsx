@@ -8,6 +8,8 @@ import type { ProductDTO } from '@/lib/types';
 import { useApp } from './AppContext';
 import { norm, Picker } from './Picker';
 import { SerialInput } from './SerialInput';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 // Opening stock (first count) or a correction at one location.
 export function StockAdjust() {
@@ -49,7 +51,7 @@ export function StockAdjust() {
   return (
     <div className="settings">
       <div className="ed-bar">
-        <button className="btn" onClick={() => navigate('/stock')}>{t('← Back')}</button>
+        <Button variant="outline" onClick={() => navigate('/stock')}>{t('← Back')}</Button>
         <h2>{t('Adjust stock')}</h2>
       </div>
       <div className="form">
@@ -84,15 +86,15 @@ export function StockAdjust() {
             </div>
           )}
           <div className="grid2">
-            <label className="f">{t('Quantity')}<input className="i" inputMode="numeric" value={qty} onChange={(e) => setQty(e.target.value)} /></label>
-            {dir === 'add' && <label className="f">{t('Unit cost')} ({t('optional')})<input className="i" inputMode="decimal" value={unitCost} onChange={(e) => setUnitCost(e.target.value)} /></label>}
+            <label className="f">{t('Quantity')}<Input inputMode="numeric" value={qty} onChange={(e) => setQty(e.target.value)} /></label>
+            {dir === 'add' && <label className="f">{t('Unit cost')} ({t('optional')})<Input inputMode="decimal" value={unitCost} onChange={(e) => setUnitCost(e.target.value)} /></label>}
           </div>
           {p?.serialTracked && (
             <SerialInput serials={serials} qty={qty} onChange={setSerials} suggestions={dir === 'remove' ? inStock[p.id] : undefined} />
           )}
-          <label className="f" style={{ marginTop: 10 }}>{t('Note')}<input className="i" placeholder={t('e.g. counted on 14 Oct, 1 damaged')} value={note} onChange={(e) => setNote(e.target.value)} /></label>
+          <label className="f" style={{ marginTop: 10 }}>{t('Note')}<Input placeholder={t('e.g. counted on 14 Oct, 1 damaged')} value={note} onChange={(e) => setNote(e.target.value)} /></label>
           <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
-            <button className="btn dark" disabled={busy} onClick={save}>{t('Save')}</button>
+            <Button disabled={busy} onClick={save}>{t('Save')}</Button>
           </div>
           <div className="err" style={{ color: 'var(--danger)', marginTop: 8, fontSize: 13 }}>{err}</div>
         </div>

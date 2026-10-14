@@ -9,6 +9,9 @@ import { blankLine, LinesEditor, linesPayload, type Line } from './LinesEditor';
 import { norm } from './Picker';
 import { SerialInput } from './SerialInput';
 import { Step, TransferBadge, when } from './Transfers';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 
 const orderTotal = (p: PurchaseDTO) => p.items.reduce((s, i) => s + num(i.qty) * num(i.unitCost), 0);
 const STATUSES: TransferStatus[] = ['pending', 'delivering', 'received', 'cancelled'];
@@ -29,7 +32,7 @@ export function PurchasesList() {
       <div className="list-head">
         <h2>{t('Purchase orders')}</h2>
         <div className="spacer" />
-        <button className="btn primary" onClick={() => navigate('/purchases/new')}>{t('+ Purchase order')}</button>
+        <Button onClick={() => navigate('/purchases/new')}>{t('+ Purchase order')}</Button>
       </div>
       <div className="card">
         <div className="toolbar">
@@ -37,7 +40,7 @@ export function PurchasesList() {
             <button className={!status ? 'on' : ''} onClick={() => setStatus('')}>{t('All')}</button>
             {STATUSES.map((s) => <button key={s} className={status === s ? 'on' : ''} onClick={() => setStatus(s)}>{t('tr.' + s)} <span className="cnt">{rows.filter((r) => r.status === s).length}</span></button>)}
           </div>
-          <input className="search" placeholder={t('Search order, supplier or online order no…')} value={q} onChange={(e) => setQ(e.target.value)} />
+          <Input className="search" placeholder={t('Search order, supplier or online order no…')} value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
         {shown.length ? (
           <table className="list cards">
@@ -100,18 +103,18 @@ function PurchaseForm({ initial }: { initial?: PurchaseDTO }) {
   return (
     <>
       <div className="ed-bar">
-        <button className="btn" onClick={() => navigate(initial?.id ? `/purchases/${initial.id}` : '/purchases')}>{t('← Back')}</button>
+        <Button variant="outline" onClick={() => navigate(initial?.id ? `/purchases/${initial.id}` : '/purchases')}>{t('← Back')}</Button>
         <h2>{initial?.id ? t('Edit {num}', { num: initial.number }) : t('New purchase order')}</h2>
         <div className="spacer" />
-        {!initial?.id && <button className="btn" disabled={busy} onClick={() => save(true)}>{t('Save & receive now')}</button>}
-        <button className="btn dark" disabled={busy} onClick={() => save(false)}>{initial?.id ? t('Save changes') : t('Save order')}</button>
+        {!initial?.id && <Button variant="outline" disabled={busy} onClick={() => save(true)}>{t('Save & receive now')}</Button>}
+        <Button disabled={busy} onClick={() => save(false)}>{initial?.id ? t('Save changes') : t('Save order')}</Button>
       </div>
       <div className="editor single">
         <div className="form">
           <div className="section">
             <h3>{t('Order')}</h3>
             <div className="grid2">
-              <label className="f">{t('Order date')}<input className="i" type="date" value={date} onChange={(e) => setDate(e.target.value)} /></label>
+              <label className="f">{t('Order date')}<Input type="date" value={date} onChange={(e) => setDate(e.target.value)} /></label>
               <label className="f">{t('Stock arrives at')}
                 <select className="i" value={locationId} onChange={(e) => setLocationId(e.target.value)}>
                   {active.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}
@@ -119,8 +122,8 @@ function PurchaseForm({ initial }: { initial?: PurchaseDTO }) {
               </label>
             </div>
             <div className="grid2" style={{ marginTop: 10 }}>
-              <label className="f">{t('Supplier / website')}<input className="i" value={supplier} placeholder={t('optional')} onChange={(e) => setSupplier(e.target.value)} /></label>
-              <label className="f">{t('Online order no.')}<input className="i" value={orderRef} placeholder={t('optional')} onChange={(e) => setOrderRef(e.target.value)} /></label>
+              <label className="f">{t('Supplier / website')}<Input value={supplier} placeholder={t('optional')} onChange={(e) => setSupplier(e.target.value)} /></label>
+              <label className="f">{t('Online order no.')}<Input value={orderRef} placeholder={t('optional')} onChange={(e) => setOrderRef(e.target.value)} /></label>
             </div>
           </div>
           <div className="section">
@@ -129,7 +132,7 @@ function PurchaseForm({ initial }: { initial?: PurchaseDTO }) {
             <div className="sum big" style={{ marginTop: 12 }}><span>{t('Total cost')}</span><span>{money(total)}</span></div>
           </div>
           <div className="section">
-            <label className="f">{t('Note')}<textarea className="i" rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} /></label>
+            <label className="f">{t('Note')}<Textarea rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} /></label>
             <p className="pay-empty" style={{ marginTop: 10 }}>{t('Saving records the order as pending. Stock is added at {loc} when you press Receive.', { loc: locName })}</p>
             <div style={{ color: 'var(--danger)', fontSize: 13 }}>{err}</div>
           </div>
@@ -171,19 +174,19 @@ export function PurchaseView({ id }: { id: string }) {
   return (
     <>
       <div className="ed-bar">
-        <button className="btn" onClick={() => navigate('/purchases')}>{t('← Back')}</button>
+        <Button variant="outline" onClick={() => navigate('/purchases')}>{t('← Back')}</Button>
         <h2>{t('Purchase order')} {po.number}</h2>
         <TransferBadge s={po.status} />
         <div className="spacer" />
         {mode === 'view' && open && <>
-          <button className="btn danger" disabled={busy} onClick={() => confirm(t('Cancel {num}?', { num: po.number })) && act('cancel', t('Order cancelled'))}>{t('Cancel order')}</button>
-          <button className="btn" onClick={() => setMode('edit')}>{t('Edit')}</button>
-          {po.status === 'pending' && <button className="btn" disabled={busy} onClick={() => act('ship', t('{num} marked as delivering', { num: po.number }))}>{t('Mark as delivering')}</button>}
-          <button className="btn dark" onClick={startReceive}>{t('Receive')}</button>
+          <Button variant="destructive" disabled={busy} onClick={() => confirm(t('Cancel {num}?', { num: po.number })) && act('cancel', t('Order cancelled'))}>{t('Cancel order')}</Button>
+          <Button variant="outline" onClick={() => setMode('edit')}>{t('Edit')}</Button>
+          {po.status === 'pending' && <Button variant="outline" disabled={busy} onClick={() => act('ship', t('{num} marked as delivering', { num: po.number }))}>{t('Mark as delivering')}</Button>}
+          <Button onClick={startReceive}>{t('Receive')}</Button>
         </>}
         {mode === 'view' && po.status === 'received' && <>
-          <button className="btn danger" disabled={busy} onClick={() => confirm(t('Cancel {num}? Its items are taken back out of stock at {loc}.', { num: po.number, loc: loc(po.locationId) })) && act('cancel', t('Order cancelled'))}>{t('Cancel order')}</button>
-          <button className="btn primary" onClick={() => navigate(`/transfers/new?po=${po.id}`)}>{t('Transfer to…')}</button>
+          <Button variant="destructive" disabled={busy} onClick={() => confirm(t('Cancel {num}? Its items are taken back out of stock at {loc}.', { num: po.number, loc: loc(po.locationId) })) && act('cancel', t('Order cancelled'))}>{t('Cancel order')}</Button>
+          <Button onClick={() => navigate(`/transfers/new?po=${po.id}`)}>{t('Transfer to…')}</Button>
         </>}
       </div>
 
@@ -221,7 +224,7 @@ export function PurchaseView({ id }: { id: string }) {
                   <td className="r c-sub">{i.qty}</td>
                   <td className="r c-amt">
                     {mode === 'receive'
-                      ? <input className="i qty-in" inputMode="numeric" value={g.qty} onChange={(e) => setGot({ ...got, [i.id!]: { ...g, qty: e.target.value } })} />
+                      ? <Input className="qty-in" inputMode="numeric" value={g.qty} onChange={(e) => setGot({ ...got, [i.id!]: { ...g, qty: e.target.value } })} />
                       : i.receivedQty ?? '—'}
                     {short > 0 && <span className="sub-note" style={{ color: 'var(--danger)' }}>{t('{n} short', { n: short })}</span>}
                   </td>
@@ -240,10 +243,10 @@ export function PurchaseView({ id }: { id: string }) {
           <h3>{t('Receive at {loc}', { loc: loc(po.locationId) })}</h3>
           <p className="pay-empty">{t('Enter what actually arrived. Items with serial numbers need one serial per unit. Anything short is recorded.')}</p>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-            <button className="btn dark" disabled={busy} onClick={() => act('receive', t('{num} received · stock added at {loc}', { num: po.number, loc: loc(po.locationId) }), {
+            <Button disabled={busy} onClick={() => act('receive', t('{num} received · stock added at {loc}', { num: po.number, loc: loc(po.locationId) }), {
               items: po.items.map((i) => ({ id: i.id, receivedQty: Number(got[i.id!].qty), receivedSerials: got[i.id!].serials })),
-            })}>{t('Confirm received')}</button>
-            <button className="btn" onClick={() => { setMode('view'); setErr(''); }}>{t('Cancel')}</button>
+            })}>{t('Confirm received')}</Button>
+            <Button variant="outline" onClick={() => { setMode('view'); setErr(''); }}>{t('Cancel')}</Button>
             <span style={{ color: 'var(--danger)', fontSize: 13 }}>{err}</span>
           </div>
         </div>
@@ -255,9 +258,9 @@ export function PurchaseView({ id }: { id: string }) {
           <h3>{t('Transfers')}</h3>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             {po.transfers!.map((x) => (
-              <button key={x.id} className="btn" onClick={() => navigate(`/transfers/${x.id}`)}>
+              <Button key={x.id} variant="outline" onClick={() => navigate(`/transfers/${x.id}`)}>
                 {x.number} → {loc(x.toId)} <TransferBadge s={x.status} />
-              </button>
+              </Button>
             ))}
           </div>
         </div>

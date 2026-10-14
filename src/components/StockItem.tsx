@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { api } from '@/lib/client';
 import { useStock } from '@/lib/useStock';
 import { useApp } from './AppContext';
+import { Button } from '@/components/ui/button';
 
 type Move = { id: string; locationId: string; qty: number; kind: string; unitCost: string | null; refType: string; refId: string; refNumber: string; note: string; createdBy: string; createdAt: string };
 type Unit = { id: string; serial: string; status: string; locationId: string | null; refNumber: string };
@@ -34,10 +35,10 @@ export function StockItem({ productId }: { productId: string }) {
   return (
     <>
       <div className="ed-bar">
-        <button className="btn" onClick={() => navigate('/stock')}>{t('← Back')}</button>
+        <Button variant="outline" onClick={() => navigate('/stock')}>{t('← Back')}</Button>
         <h2>{d.product.name}</h2>
         <div className="spacer" />
-        <button className="btn" onClick={() => navigate(`/stock/adjust?product=${productId}`)}>{t('Adjust stock')}</button>
+        <Button variant="outline" onClick={() => navigate(`/stock/adjust?product=${productId}`)}>{t('Adjust stock')}</Button>
       </div>
       <div className="stats">
         {stock.locations.filter((l) => l.active).map((l) => (
