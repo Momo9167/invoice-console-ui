@@ -79,9 +79,9 @@ export function DocumentsList() {
           <input className="search" placeholder={t('Search number, customer or phone…')} value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
         {shown.length ? (
-          <table className="list">
+          <table className="list cards">
             <thead><tr>
-              <th>{t('Type')}</th><th>{t('Number')}</th><th>{t('Customer')}</th><th className="hide-sm">{t('Date')}</th>
+              <th>{t('Type')}</th><th>{t('Number')}</th><th>{t('Customer')}</th><th>{t('Date')}</th>
               <th className="hide-sm">{t('Due')}</th><th className="r">{t('Total')}</th><th className="r">{t('Balance')}</th><th className="r hide-sm">{t('Status')}</th>
             </tr></thead>
             <tbody>
@@ -90,14 +90,14 @@ export function DocumentsList() {
                 const late = st === 'overdue' ? daysBetween(dueDateOf(d), today()) : 0;
                 return (
                   <tr className="row" key={d.id} onClick={() => navigate(`/docs/${d.id}`)}>
-                    <td><span className={`badge ${d.type}`}>{t(LABEL[d.type])}</span></td>
-                    <td><b>{d.number}</b></td>
-                    <td>{d.customer.name || '—'}</td>
-                    <td className="hide-sm">{fmtDate(d.date)}</td>
+                    <td className="c-type"><span className={`badge ${d.type}`}>{t(LABEL[d.type])}</span></td>
+                    <td className="c-title"><b>{d.number}</b></td>
+                    <td className="c-sub">{d.customer.name || '—'}</td>
+                    <td className="c-date">{fmtDate(d.date)}</td>
                     <td className="hide-sm">{d.type === 'invoice' ? fmtDate(dueDateOf(d)) : ''}</td>
-                    <td className="r">{money(c.total)}</td>
-                    <td className="r">{d.type === 'invoice' && !d.void ? money(Math.max(0, c.balance)) : '—'}</td>
-                    <td className="r hide-sm">
+                    <td className="r c-amt">{money(c.total)}</td>
+                    <td className={`r ${d.type === 'invoice' && !d.void && c.balance > EPS ? 'c-bal' : 'hide-sm'}`} data-label={t('Balance')}>{d.type === 'invoice' && !d.void ? money(Math.max(0, c.balance)) : '—'}</td>
+                    <td className="r c-status">
                       <StatusBadge st={st} />
                       {late > 0 && <span className="sub-note">{t(late === 1 ? '{n} day late' : '{n} days late', { n: late })}</span>}
                     </td>

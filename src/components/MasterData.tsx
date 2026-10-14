@@ -105,7 +105,7 @@ export function MasterData({ tab }: { tab: Tab }) {
             <input className="search" placeholder={t('Search {x}…', { x: my ? many : many.toLowerCase() })} value={q} onChange={(e) => setQ(e.target.value)} />
           </div>
           {shown.length ? (
-            <table className="list">
+            <table className="list stack">
               <thead><tr>{M.cols.map((c) => <th key={c.h} className={c.cls || ''}>{t(c.h)}</th>)}<th /></tr></thead>
               <tbody>
                 {shown.map((x) => (
