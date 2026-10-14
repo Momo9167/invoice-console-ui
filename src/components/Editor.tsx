@@ -2,7 +2,7 @@
 
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { blankItem, calc, lineAmount } from '@/lib/calc';
+import { blankItem, calc, lineAmount, num } from '@/lib/calc';
 import { api, ApiError } from '@/lib/client';
 import type { DocDTO, LineItem, ProductDTO, CustomerDTO } from '@/lib/types';
 import { useApp } from './AppContext';
@@ -268,11 +268,17 @@ export function Editor({ initial, startDirty = false }: { initial: DocDTO; start
               <label className="f">{t('Delivery fee')} ({settings.currency})<input className="i" inputMode="decimal" placeholder="0" value={d.deliveryFee} onChange={(e) => edit({ deliveryFee: e.target.value })} /></label>
               <label className="f">{t('Service charge')} ({settings.currency})<input className="i" inputMode="decimal" placeholder="0" value={d.serviceCharge} onChange={(e) => edit({ serviceCharge: e.target.value })} /></label>
             </div>
+            <div className="grid2" style={{ marginTop: 10 }}>
+              <div />
+              <label className="f">{t('Service discount')} ({settings.currency})<input className="i" inputMode="decimal" placeholder="0" value={d.serviceDiscount} onChange={(e) => edit({ serviceDiscount: e.target.value })} /></label>
+            </div>
+            {c.serviceDiscount < num(d.serviceDiscount) && <div className="pay-empty" style={{ color: 'var(--danger)', marginTop: 6 }}>{t('Service discount can’t be more than the service charge.')}</div>}
             <label className="f" style={{ marginTop: 10 }}>{t('Notes / terms')}<textarea className="i" rows={3} placeholder={t('e.g. 1 year warranty on cameras')} value={d.notes} onChange={(e) => edit({ notes: e.target.value })} /></label>
             <div style={{ marginTop: 14 }}>
               <div className="sum"><span>{t('Subtotal')}</span><span>{money(c.subtotal)}</span></div>
               <div className="sum"><span>{t('Delivery fee')}</span><span>{money(c.delivery)}</span></div>
-              <div className="sum"><span>{t('Service charge')}</span><span>{money(c.service)}</span></div>
+              <div className="sum"><span>{t('Service charge')}</span><span>{money(c.serviceGross)}</span></div>
+              {c.serviceDiscount > 0 && <div className="sum"><span>{t('Service discount')}</span><span>-{money(c.serviceDiscount)}</span></div>}
               <div className="sum"><span>{t('Total')}</span><span>{money(c.total)}</span></div>
               {isInv && <>
                 <div className="sum"><span>{t('Paid')}</span><span>{money(c.paid)}</span></div>

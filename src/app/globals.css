@@ -192,7 +192,7 @@
   table.s-items td.num { color: var(--muted); }
   table.s-items tbody tr:nth-child(even) td { background: var(--zebra); }
   table.s-items tbody tr:last-child td { border-bottom: 2px solid var(--ink); }
-  table.s-items .disc { color: var(--danger); }
+  table.s-items .disc, .s-totals .row.disc span:last-child { color: var(--danger); }
   .s-stamp { position: absolute; top: 210px; right: 70px; transform: rotate(-14deg); border: 3px solid currentColor; border-radius: 8px; padding: 4px 16px; font-size: 30px; font-weight: 800; letter-spacing: .12em; opacity: .22; pointer-events: none; }
   .s-stamp.paid { color: var(--ok); }
   .s-stamp.void { color: var(--danger); }

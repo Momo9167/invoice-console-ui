@@ -31,6 +31,7 @@ export default function Page({ params }: { params: Promise<{ type: string }> }) 
         items: src ? src.items.map((i) => ({ ...i, serials: [...(i.serials || [])] })) : [blankItem()],
         deliveryFee: src?.deliveryFee && src.deliveryFee !== '0' ? src.deliveryFee : '',
         serviceCharge: src?.serviceCharge && src.serviceCharge !== '0' ? src.serviceCharge : '',
+        serviceDiscount: src?.serviceDiscount && src.serviceDiscount !== '0' ? src.serviceDiscount : '',
         notes: src?.notes ?? '',
         void: false,
         payments: [], // never copied

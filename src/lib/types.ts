@@ -49,6 +49,7 @@ export interface DocDTO {
   items: LineItem[];
   deliveryFee: string;
   serviceCharge: string;
+  serviceDiscount: string;
   notes: string;
   void: boolean;
   payments: PaymentDTO[];
