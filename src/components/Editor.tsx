@@ -206,7 +206,7 @@ export function Editor({ initial, startDirty = false }: { initial: DocDTO; start
         {d.id && d.type === 'quotation' && <Button variant="outline" onClick={() => openNew('invoice')}>{t('Convert to Invoice')}</Button>}
         {d.id && isInv && <Button variant="outline" onClick={toggleVoid}>{t(d.void ? 'Restore' : 'Void')}</Button>}
         <Button variant="outline" onClick={printDoc}>{t('Print')}</Button>
-        <Button onClick={exportPdf} disabled={busy}>{busy ? t('Exporting…') : t('Export PDF')}</Button>
+        <Button className="brand-btn" onClick={exportPdf} disabled={busy}>{busy ? t('Exporting…') : t('Export PDF')}</Button>
         <Button onClick={save} disabled={busy}>{t('Save')}</Button>
       </div>
 

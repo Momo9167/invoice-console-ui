@@ -50,10 +50,10 @@ export function Sidebar() {
         {link('/settings', 'Settings', SettingsIcon, path === '/settings')}
       </nav>
       <div className="side-new">
-        <Button title={t('+ Invoice')} onClick={() => navigate('/docs/new/invoice')}>
+        <Button className="brand-btn" title={t('+ Invoice')} onClick={() => navigate('/docs/new/invoice')}>
           <Plus className="btn-icon" /><span className="btn-label">{t('+ Invoice')}</span>
         </Button>
-        <Button variant="outline" title={t('+ Quotation')} onClick={() => navigate('/docs/new/quotation')}>
+        <Button variant="outline" className="ghost-light" title={t('+ Quotation')} onClick={() => navigate('/docs/new/quotation')}>
           <Plus className="btn-icon" /><span className="btn-label">{t('+ Quotation')}</span>
         </Button>
       </div>
