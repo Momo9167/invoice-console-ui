@@ -10,12 +10,13 @@ export interface Line { productId: string; label: string; qty: string | number; 
 export const blankLine = (): Line => ({ productId: '', label: '', qty: 1, unitCost: '', serials: [] });
 
 // Item lines for purchase orders (with cost) and transfers (with stock at the source).
-export function LinesEditor({ lines, onChange, withCost, available, serialSuggestions }: {
+export function LinesEditor({ lines, onChange, withCost, available, serialSuggestions, serialsOptional }: {
   lines: Line[];
   onChange: (l: Line[]) => void;
   withCost?: boolean;
   available?: (productId: string) => number; // stock at the source location
   serialSuggestions?: Record<string, string[]>;
+  serialsOptional?: boolean; // purchase orders: serials can be entered now or when receiving
 }) {
   const { t, money, products } = useApp();
   const set = (i: number, patch: Partial<Line>) => onChange(lines.map((l, j) => (j === i ? { ...l, ...patch } : l)));
@@ -50,7 +51,7 @@ export function LinesEditor({ lines, onChange, withCost, available, serialSugges
                 : avail !== null && <div className={`avail${avail < num(l.qty) ? ' low' : ''}`}><span>{t('Available')}</span><b>{avail}</b></div>}
             </div>
             {p?.serialTracked && (
-              <SerialInput serials={l.serials} qty={l.qty} required onChange={(serials) => set(i, { serials })}
+              <SerialInput serials={l.serials} qty={l.qty} required={!serialsOptional} onChange={(serials) => set(i, { serials })}
                 suggestions={serialSuggestions?.[p.id]} />
             )}
           </div>

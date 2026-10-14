@@ -11,7 +11,7 @@ import { blankLine, LinesEditor, linesPayload, type Line } from './LinesEditor';
 import { norm } from './Picker';
 
 const STATUSES: TransferStatus[] = ['pending', 'delivering', 'received', 'cancelled'];
-const when = (iso?: string | null) => (iso ? new Date(iso).toLocaleString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '');
+export const when = (iso?: string | null) => (iso ? new Date(iso).toLocaleString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '');
 
 export function TransferBadge({ s }: { s: TransferStatus }) {
   const { t } = useApp();
@@ -294,7 +294,7 @@ export function TransferView({ id }: { id: string }) {
   );
 }
 
-function Step({ on, label, sub, cancelled }: { on: boolean; label: string; sub?: string; cancelled?: boolean }) {
+export function Step({ on, label, sub, cancelled }: { on: boolean; label: string; sub?: string; cancelled?: boolean }) {
   return (
     <div className={`step${on ? ' on' : ''}${cancelled ? ' cancelled' : ''}`}>
       <i />

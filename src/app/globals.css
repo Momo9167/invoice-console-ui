@@ -462,3 +462,5 @@
     table.list.stock .c-title { flex-basis: 70%; }
     table.list.stock .c-amt { margin-left: auto; }
   }
+  input.i.qty-in { width: 90px; text-align: right; }
+  td .sn { min-width: 220px; max-width: 420px; }

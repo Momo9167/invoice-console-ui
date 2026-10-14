@@ -79,11 +79,13 @@ export interface UserDTO { id: string; name: string; username: string; active?: 
 
 export type TransferStatus = 'pending' | 'delivering' | 'received' | 'cancelled';
 
-export interface PurchaseItemDTO { id?: string; productId: string; qty: number | string; unitCost: number | string; serials: string[] }
+export interface PurchaseItemDTO { id?: string; productId: string; qty: number | string; unitCost: number | string; serials: string[]; receivedQty?: number | null; receivedSerials?: string[] | null }
 export interface PurchaseDTO {
   id?: string; number: string; date: string; supplier: string; orderRef: string; locationId: string;
-  status: 'ordered' | 'cancelled'; notes: string; items: PurchaseItemDTO[];
-  createdBy?: string; cancelledBy?: string; cancelledAt?: string | null; createdAt?: string;
+  status: TransferStatus; notes: string; items: PurchaseItemDTO[]; // same steps as transfers: pending -> delivering -> received
+  createdBy?: string; createdAt?: string; shippedBy?: string; shippedAt?: string | null;
+  receivedBy?: string; receivedAt?: string | null; cancelledBy?: string; cancelledAt?: string | null;
+  warning?: string;
   transfers?: { id: string; number: string; status: TransferStatus; toId: string }[];
 }
 
