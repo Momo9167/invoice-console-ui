@@ -11,6 +11,11 @@ import { SerialInput } from './SerialInput';
 import { PaymentsPanel } from './PaymentsPanel';
 import { useSerials, useStock } from '@/lib/useStock';
 import { Sheet } from './Sheet';
+import { toast as sonner } from 'sonner';
+import { ChevronDown, FileImage, FileText, Share2 } from 'lucide-react';
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -111,31 +116,51 @@ export function Editor({ initial, startDirty = false }: { initial: DocDTO; start
     document.title = prev;
   }
 
-  async function exportPdf() {
+  // Export as PDF / PNG / JPEG. share=true opens the phone's share sheet (Drive, Telegram, Files, Photos…),
+  // which also works on phones without a PDF app; otherwise the file is downloaded.
+  async function exportFile(format: 'pdf' | 'png' | 'jpeg', share = false) {
     const saved = await ensureSaved();
     if (!saved?.id) return;
     setBusy(true);
     try {
-      const r = await fetch(`/api/docs/${saved.id}/pdf`);
+      const r = await fetch(`/api/docs/${saved.id}/pdf?format=${format}`);
       if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || r.statusText);
+      const blob = await r.blob();
+      const ext = format === 'jpeg' ? 'jpg' : format;
+      const name = [saved.number, saved.customer.name].filter(Boolean).join(' - ') + '.' + ext;
+      const file = new File([blob], name, { type: blob.type });
+      if (share && navigator.canShare?.({ files: [file] })) {
+        const doShare = () => navigator.share({ files: [file], title: name }).catch((e: Error) => {
+          if (e.name !== 'AbortError') toast(t('Export failed: {msg}', { msg: e.message }));
+        });
+        try {
+          await navigator.share({ files: [file], title: name });
+        } catch (e) {
+          // Some phones only allow sharing straight after a tap; offer a second tap once the file is ready.
+          if ((e as Error).name === 'NotAllowedError') sonner(t('{name} is ready', { name }), { action: { label: t('Share'), onClick: doShare }, duration: 15000 });
+          else if ((e as Error).name !== 'AbortError') throw e;
+        }
+        return;
+      }
       const a = document.createElement('a');
-      a.href = URL.createObjectURL(await r.blob());
-      a.download = [saved.number, saved.customer.name].filter(Boolean).join(' - ') + '.pdf';
+      a.href = URL.createObjectURL(blob);
+      a.download = name;
       document.body.appendChild(a); a.click(); a.remove();
-      setTimeout(() => URL.revokeObjectURL(a.href), 5000);
-      toast(t('PDF downloaded'));
+      setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+      toast(t('{name} downloaded', { name }));
     } catch (e) {
       toast(t('Export failed: {msg}', { msg: (e as Error).message }));
     } finally {
       setBusy(false);
     }
   }
+  const canShare = typeof navigator !== 'undefined' && !!navigator.canShare;
 
   const openNew = (type: 'quotation' | 'invoice') => app.navigate(`/docs/new/${type}?from=${d.id}`);
 
   // keyboard shortcuts
   const saveRef = useRef(save); saveRef.current = save;
-  const pdfRef = useRef(exportPdf); pdfRef.current = exportPdf;
+  const pdfRef = useRef(() => exportFile('pdf')); pdfRef.current = () => exportFile('pdf');
   const printRef = useRef(printDoc); printRef.current = printDoc;
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -206,7 +231,23 @@ export function Editor({ initial, startDirty = false }: { initial: DocDTO; start
         {d.id && d.type === 'quotation' && <Button variant="outline" onClick={() => openNew('invoice')}>{t('Convert to Invoice')}</Button>}
         {d.id && isInv && <Button variant="outline" onClick={toggleVoid}>{t(d.void ? 'Restore' : 'Void')}</Button>}
         <Button variant="outline" onClick={printDoc}>{t('Print')}</Button>
-        <Button className="brand-btn" onClick={exportPdf} disabled={busy}>{busy ? t('Exporting…') : t('Export PDF')}</Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button className="brand-btn" disabled={busy}>{busy ? t('Exporting…') : t('Export')}<ChevronDown /></Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="min-w-52">
+            <DropdownMenuLabel>{t('Download')}</DropdownMenuLabel>
+            <DropdownMenuItem onSelect={() => exportFile('pdf')}><FileText />{t('PDF document')}</DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => exportFile('png')}><FileImage />{t('PNG image')}</DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => exportFile('jpeg')}><FileImage />{t('JPEG image')}</DropdownMenuItem>
+            {canShare && <>
+              <DropdownMenuSeparator />
+              <DropdownMenuLabel>{t('Share (Drive, Telegram, Viber, Files…)')}</DropdownMenuLabel>
+              <DropdownMenuItem onSelect={() => exportFile('pdf', true)}><Share2 />{t('Share as PDF')}</DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => exportFile('jpeg', true)}><Share2 />{t('Share as image')}</DropdownMenuItem>
+            </>}
+          </DropdownMenuContent>
+        </DropdownMenu>
         <Button onClick={save} disabled={busy}>{t('Save')}</Button>
       </div>
 

@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import {
-  Boxes, CreditCard, Database, FileText, LogOut, PieChart, Plus, Receipt, Settings as SettingsIcon, ShoppingCart, Truck,
+  Boxes, CreditCard, Database, FileText, LogOut, Menu, PieChart, Plus, Receipt, Settings as SettingsIcon, ShoppingCart, Truck, X,
   type LucideIcon,
 } from 'lucide-react';
 import { api } from '@/lib/client';
@@ -15,9 +15,20 @@ export function Sidebar() {
   const { t, navigate, confirmLeave, settings, me } = useApp();
   const path = usePathname();
   const [switching, setSwitching] = useState(false);
+  // Phones: the same sidebar slides in as a drawer.
+  const [open, setOpen] = useState(false);
+  useEffect(() => { setOpen(false); }, [path]);
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false); };
+    addEventListener('keydown', onKey);
+    document.body.style.overflow = 'hidden';
+    return () => { removeEventListener('keydown', onKey); document.body.style.overflow = ''; };
+  }, [open]);
+  const go = (href: string) => { setOpen(false); navigate(href); };
 
   const link = (href: string, label: string, Icon: LucideIcon, active: boolean) => (
-    <a href={href} title={t(label)} className={active ? 'active' : ''} onClick={(e) => { e.preventDefault(); navigate(href); }}>
+    <a href={href} title={t(label)} className={active ? 'active' : ''} onClick={(e) => { e.preventDefault(); go(href); }}>
       <Icon /><span>{t(label)}</span>
     </a>
   );
@@ -31,10 +42,22 @@ export function Sidebar() {
   }
 
   return (
-    <aside className="sidebar no-print">
-      <div className="brand" onClick={() => navigate('/')}>
+    <>
+    {/* phone top bar (hidden on tablet/laptop) */}
+    <header className="mobile-bar no-print">
+      <button className="mb-menu" aria-label={t('Menu')} onClick={() => setOpen(true)}><Menu /></button>
+      <div className="brand" onClick={() => go('/')}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/logo.jpg" alt="" /> Mooe <span>Console</span>
+      </div>
+      <Button className="brand-btn mb-new" size="sm" onClick={() => go('/docs/new/invoice')}><Plus />{t('Invoice')}</Button>
+    </header>
+    <div className={`side-backdrop${open ? ' open' : ''}`} onClick={() => setOpen(false)} />
+    <aside className={`sidebar no-print${open ? ' open' : ''}`}>
+      <div className="brand" onClick={() => go('/')}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/logo.jpg" alt="" /> Mooe <span>Console</span>
+        <button className="side-close" aria-label={t('Close')} onClick={(e) => { e.stopPropagation(); setOpen(false); }}><X /></button>
       </div>
       <nav className="side-nav">
         {link('/', 'Documents', FileText, path === '/' || path.startsWith('/docs'))}
@@ -50,10 +73,10 @@ export function Sidebar() {
         {link('/settings', 'Settings', SettingsIcon, path === '/settings')}
       </nav>
       <div className="side-new">
-        <Button className="brand-btn" title={t('+ Invoice')} onClick={() => navigate('/docs/new/invoice')}>
+        <Button className="brand-btn" title={t('+ Invoice')} onClick={() => go('/docs/new/invoice')}>
           <Plus className="btn-icon" /><span className="btn-label">{t('+ Invoice')}</span>
         </Button>
-        <Button variant="outline" className="ghost-light" title={t('+ Quotation')} onClick={() => navigate('/docs/new/quotation')}>
+        <Button variant="outline" className="ghost-light" title={t('+ Quotation')} onClick={() => go('/docs/new/quotation')}>
           <Plus className="btn-icon" /><span className="btn-label">{t('+ Quotation')}</span>
         </Button>
       </div>
@@ -66,7 +89,7 @@ export function Sidebar() {
           </button>
         </div>
         {me && (
-          <div className="side-user" title={`@${me.username} · ${t('Change my password')}`} style={{ cursor: 'pointer' }} onClick={() => navigate('/settings#password')}>
+          <div className="side-user" title={`@${me.username} · ${t('Change my password')}`} style={{ cursor: 'pointer' }} onClick={() => go('/settings#password')}>
             <span className="avatar">{me.name.slice(0, 1).toUpperCase()}</span><span>{me.name}</span>
           </div>
         )}
@@ -77,5 +100,6 @@ export function Sidebar() {
         }}><LogOut /><span>{t('Sign out')}</span></button>
       </div>
     </aside>
+    </>
   );
 }
