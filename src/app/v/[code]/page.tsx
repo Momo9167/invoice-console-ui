@@ -26,7 +26,7 @@ export default async function Page({ params }: { params: Promise<{ code: string 
     <div className="verify-wrap" lang={v?.docLang === 'my' ? 'my' : 'en'}>
       <div className="verify-card">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo.jpg" alt="" className="verify-logo" />
+        <img src="/logo.jpg" alt="" width={56} height={56} className="verify-logo" />
         {v ? (
           <>
             <div className={`verify-badge ${v.void ? 'bad' : 'ok'}`}>

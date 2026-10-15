@@ -1,19 +1,19 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
-import { Geist } from "next/font/google";
-import { cn } from "@/lib/utils";
+import { Inter, Noto_Sans_Myanmar } from 'next/font/google';
+import { cn } from '@/lib/utils';
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+// Self-hosted by next/font: no request to Google at runtime, and no layout shift while the fonts load.
+const inter = Inter({ subsets: ['latin'], variable: '--font-sans', display: 'swap' });
+const myanmar = Noto_Sans_Myanmar({ subsets: ['myanmar'], weight: ['400', '500', '600'], variable: '--font-myanmar', display: 'swap' });
 
 export const metadata: Metadata = { title: 'Mooe Console', icons: { icon: '/logo.jpg' } };
+// Matches the navy sidebar and phone top bar, so the browser bar blends in.
+export const viewport: Viewport = { themeColor: '#141a24' };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={cn("font-sans", geist.variable)}>
-      <head>
-        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Myanmar:wght@400;500;600&display=swap" rel="stylesheet" />
-      </head>
+    <html lang="en" className={cn('font-sans', inter.variable, myanmar.variable)}>
       <body>{children}</body>
     </html>
   );

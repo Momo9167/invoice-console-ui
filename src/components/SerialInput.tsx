@@ -33,11 +33,15 @@ export function SerialInput({ serials, qty, onChange, suggestions, required }: {
         {serials.map((x, j) => (
           <span className="sn-tag" key={x}>
             {x}
-            <button type="button" title={t('Remove')} onClick={() => onChange(serials.filter((_, k) => k !== j))}>×</button>
+            <button type="button" title={t('Remove')} aria-label={`${t('Remove')} ${x}`} onClick={() => onChange(serials.filter((_, k) => k !== j))}>×</button>
           </span>
         ))}
         <input
           value={text}
+          aria-label={t('Serial Nos.')}
+          autoComplete="off"
+          spellCheck={false}
+          autoCapitalize="none"
           placeholder={t(n ? 'Add another…' : 'Type or scan, press Enter')}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={(e) => {

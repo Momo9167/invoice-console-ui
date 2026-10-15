@@ -24,7 +24,7 @@ export function LoginForm({ lang, company }: { lang: Lang; company: string }) {
         setErr(t((await r.json().catch(() => ({}))).error || 'Wrong username or password')); setBusy(false);
       }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo.jpg" alt="" />
+        <img src="/logo.jpg" alt="" width={64} height={64} />
         <h1>{company}</h1>
         <label className="f" style={{ textAlign: 'left' }}>{t('Username')}
           <Input autoFocus autoCapitalize="none" autoComplete="username" value={user} onChange={(e) => setUser(e.target.value)} />

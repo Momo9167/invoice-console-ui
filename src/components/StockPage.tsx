@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useStock } from '@/lib/useStock';
 import { useApp } from './AppContext';
+import { RowLink } from './RowLink';
 import { norm } from './Picker';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -42,12 +43,12 @@ export function StockPage() {
       </div>
       <div className="card">
         <div className="toolbar">
-          <select className="filter" value={loc} onChange={(e) => setLoc(e.target.value)}>
+          <select className="filter" aria-label={t('Location')} value={loc} onChange={(e) => setLoc(e.target.value)}>
             <option value="">{t('All locations')}</option>
             {locs.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}
           </select>
           <label className="check"><input type="checkbox" checked={hideZero} onChange={(e) => setHideZero(e.target.checked)} /> {t('Hide items with no stock')}</label>
-          <Input className="search" placeholder={t('Search items…')} value={q} onChange={(e) => setQ(e.target.value)} />
+          <Input className="search" type="search" placeholder={t('Search items…')} aria-label={t('Search items…')} autoComplete="off" value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
         {rows.length ? (
           <table className="list cards stock">
@@ -60,7 +61,7 @@ export function StockPage() {
             <tbody>
               {rows.map((r) => (
                 <tr className="row" key={r.id} onClick={() => navigate(`/stock/${r.id}`)}>
-                  <td className="c-title"><b>{r.name}</b>{r.code && <span className="sub-note">{r.code}</span>}</td>
+                  <td className="c-title"><RowLink href={`/stock/${r.id}`}><b>{r.name}</b></RowLink>{r.code && <span className="sub-note">{r.code}</span>}</td>
                   {locs.map((l) => {
                     const v = r.byLocation[l.id] || 0, tr = r.inTransit[l.id] || 0;
                     return (

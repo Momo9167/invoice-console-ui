@@ -7,6 +7,7 @@ import { fmtDate, num, today } from '@/lib/calc';
 import { useSerials, useStock } from '@/lib/useStock';
 import type { PurchaseDTO, TransferDTO, TransferStatus } from '@/lib/types';
 import { useApp } from './AppContext';
+import { RowLink } from './RowLink';
 import { blankLine, LinesEditor, linesPayload, type Line } from './LinesEditor';
 import { norm } from './Picker';
 import { Button } from '@/components/ui/button';
@@ -48,7 +49,7 @@ export function TransfersList() {
             <button className={!status ? 'on' : ''} onClick={() => setStatus('')}>{t('All')}</button>
             {STATUSES.map((s) => <button key={s} className={status === s ? 'on' : ''} onClick={() => setStatus(s)}>{t('tr.' + s)} <span className="cnt">{count(s)}</span></button>)}
           </div>
-          <Input className="search" placeholder={t('Search transfer no. or item…')} value={q} onChange={(e) => setQ(e.target.value)} />
+          <Input className="search" type="search" placeholder={t('Search transfer no. or item…')} aria-label={t('Search transfer no. or item…')} autoComplete="off" value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
         {shown.length ? (
           <table className="list cards">
@@ -57,7 +58,7 @@ export function TransfersList() {
               {shown.map((r) => (
                 <tr className="row" key={r.id} onClick={() => navigate(`/transfers/${r.id}`)}>
                   <td className="c-date">{fmtDate(r.date)}</td>
-                  <td className="c-title"><b>{r.number}</b></td>
+                  <td className="c-title"><RowLink href={`/transfers/${r.id}`}><b>{r.number}</b></RowLink></td>
                   <td className="c-sub">{loc(r.fromId)} → {loc(r.toId)}</td>
                   <td className="hide-md" style={{ color: 'var(--ink-2)' }}>{r.items.map((i) => pname(i.productId)).join(', ')}</td>
                   <td className="r c-amt">{r.items.reduce((s, i) => s + num(i.qty), 0)}</td>

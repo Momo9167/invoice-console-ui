@@ -28,7 +28,7 @@ export function Sheet({ doc: d, settings: s, style, verifyBase }: { doc: DocDTO;
       {(st === 'paid' || st === 'void') && <div className={`s-stamp ${st}`}>{td('stamp.' + st)}</div>}
       <div className="s-header">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className="s-logo" src="/logo.jpg" alt="" />
+        <img className="s-logo" src="/logo.jpg" alt="" width={100} height={100} />
         <div className="s-company">
           <h1>{s.companyName}</h1>
           <p>{s.address}</p>

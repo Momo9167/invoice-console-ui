@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, type InputHTMLAttributes, type ReactNode } from 'react';
+import { useId, useRef, useState, type InputHTMLAttributes, type ReactNode } from 'react';
 import { Input } from '@/components/ui/input';
 
 const norm = (v: unknown) => String(v ?? '').trim().toLowerCase();
@@ -19,6 +19,7 @@ export function Picker<T>({
 }) {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
+  const listId = useId();
   const blurTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const matches = open ? search(norm(value)).slice(0, 8) : [];
   const show = open && (matches.length > 0 || !!empty);
@@ -29,7 +30,13 @@ export function Picker<T>({
     <div className="ac-wrap" style={{ flex: 1 }}>
       <Input
         autoComplete="off"
+        spellCheck={false}
         {...inputProps}
+        role="combobox"
+        aria-autocomplete="list"
+        aria-expanded={show}
+        aria-controls={show ? listId : undefined}
+        aria-activedescendant={show && matches.length ? `${listId}-${active}` : undefined}
         value={value}
         onFocus={() => { setOpen(true); setActive(0); }}
         onChange={(e) => { onChange(e.target.value); setOpen(true); setActive(0); }}
@@ -44,12 +51,12 @@ export function Picker<T>({
         }}
       />
       {show && (
-        <div className="ac">
+        <div className="ac" id={listId} role="listbox">
           {matches.length ? matches.map((x, i) => (
-            <div key={i} className={i === active ? 'on' : ''} onMouseDown={(e) => { e.preventDefault(); pick(x); }}>
+            <div key={i} id={`${listId}-${i}`} role="option" aria-selected={i === active} className={i === active ? 'on' : ''} onMouseDown={(e) => { e.preventDefault(); pick(x); }}>
               {renderRow(x)}
             </div>
-          )) : <div className="none">{empty}</div>}
+          )) : <div className="none" role="status">{empty}</div>}
         </div>
       )}
     </div>

@@ -105,7 +105,7 @@ export function PaymentsPanel({ doc: d, onDoc, ensureSaved }: {
           <h3 style={{ marginBottom: 10 }}>{form.editing ? t('Edit {num}', { num: form.number || t('payment') }) : t('Record payment')}</h3>
           <div className="grid2">
             <label className="f">{t('Amount')}
-              <Input inputMode="decimal" autoFocus value={form.amount ?? ''} onChange={(e) => setForm({ ...form, amount: e.target.value })}
+              <Input inputMode="decimal" value={form.amount ?? ''} onChange={(e) => setForm({ ...form, amount: e.target.value })}
                 onKeyDown={(e) => { if (e.key === 'Enter') submit(); }} />
             </label>
             <label className="f">{t('Payment date')}<Input type="date" value={form.date || ''} onChange={(e) => setForm({ ...form, date: e.target.value })} /></label>

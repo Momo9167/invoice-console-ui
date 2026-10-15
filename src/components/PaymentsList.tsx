@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { addDays, fmtDate, num, PAY_METHODS, today } from '@/lib/calc';
 import { useApp } from './AppContext';
+import { RowLink } from './RowLink';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -96,11 +97,11 @@ export function PaymentsList() {
 
       <div className="card">
         <div className="toolbar">
-          <select className="filter" value={method} onChange={(e) => setMethod(e.target.value)}>
+          <select className="filter" aria-label={t('Method')} value={method} onChange={(e) => setMethod(e.target.value)}>
             <option value="">{t('All methods')}</option>
             {PAY_METHODS.map((m) => <option key={m} value={m}>{t(m)}</option>)}
           </select>
-          <Input className="search" placeholder={t('Search receipt, invoice, customer or reference…')} value={q} onChange={(e) => setQ(e.target.value)} />
+          <Input className="search" type="search" placeholder={t('Search receipt, invoice, customer or reference…')} aria-label={t('Search receipt, invoice, customer or reference…')} autoComplete="off" value={q} onChange={(e) => setQ(e.target.value)} />
           <Button variant="outline" onClick={exportCsv} disabled={!rows.length}>{t('Export CSV')}</Button>
         </div>
         {rows.length ? (
@@ -113,7 +114,7 @@ export function PaymentsList() {
               {rows.map((p) => (
                 <tr className="row" key={p.id} onClick={() => navigate(`/docs/${p.doc.id}`)}>
                   <td className="c-date">{fmtDate(p.date)}</td>
-                  <td className="c-title"><b>{p.number}</b></td>
+                  <td className="c-title"><RowLink href={`/docs/${p.doc.id}`}><b>{p.number}</b></RowLink></td>
                   <td className="c-type">{p.doc.number}</td>
                   <td className="c-sub">{p.doc.customer.name || '—'}</td>
                   <td className="c-status">{t(p.method)}</td>

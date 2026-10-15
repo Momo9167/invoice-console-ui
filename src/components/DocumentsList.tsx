@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { calc, daysBetween, dueDateOf, EPS, fmtDate, statusOf, STATUSES, today } from '@/lib/calc';
 import type { DocType, Status } from '@/lib/types';
 import { useApp } from './AppContext';
+import { RowLink } from './RowLink';
 import { StatusBadge } from './PaymentsPanel';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -73,12 +74,12 @@ export function DocumentsList() {
             ))}
           </div>
           {filter !== 'quotation' && (
-            <select className="filter" value={status} onChange={(e) => setStatus(e.target.value as Status | '')}>
+            <select className="filter" aria-label={t('Status')} value={status} onChange={(e) => setStatus(e.target.value as Status | '')}>
               <option value="">{t('All statuses')}</option>
               {STATUSES.map((k) => <option key={k} value={k}>{t('status.' + k)}</option>)}
             </select>
           )}
-          <Input className="search" placeholder={t('Search number, customer or phone…')} value={q} onChange={(e) => setQ(e.target.value)} />
+          <Input className="search" type="search" placeholder={t('Search number, customer or phone…')} aria-label={t('Search number, customer or phone…')} autoComplete="off" value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
         {shown.length ? (
           <table className="list cards">
@@ -93,7 +94,7 @@ export function DocumentsList() {
                 return (
                   <tr className="row" key={d.id} onClick={() => navigate(`/docs/${d.id}`)}>
                     <td className="c-type"><span className={`badge ${d.type}`}>{t(LABEL[d.type])}</span></td>
-                    <td className="c-title"><b>{d.number}</b></td>
+                    <td className="c-title"><RowLink href={`/docs/${d.id}`}><b>{d.number}</b></RowLink></td>
                     <td className="c-sub">{d.customer.name || '—'}</td>
                     <td className="c-date">{fmtDate(d.date)}</td>
                     <td className="hide-sm">{d.type === 'invoice' ? fmtDate(dueDateOf(d)) : ''}</td>

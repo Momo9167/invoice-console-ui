@@ -82,7 +82,7 @@ export function UsersPanel() {
       <h3 style={{ marginTop: 16 }}>{t('Add user')}</h3>
       <div className="grid2">
         <label className="f">{t('Name')}<Input value={form.name} placeholder={t('e.g. Uncle')} onChange={(e) => setForm({ ...form, name: e.target.value })} /></label>
-        <label className="f">{t('Username')}<Input autoCapitalize="none" value={form.username} placeholder="e.g. uncle" onChange={(e) => setForm({ ...form, username: e.target.value.toLowerCase() })} /></label>
+        <label className="f">{t('Username')}<Input autoCapitalize="none" autoComplete="off" spellCheck={false} value={form.username} placeholder="e.g. uncle" onChange={(e) => setForm({ ...form, username: e.target.value.toLowerCase() })} /></label>
       </div>
       <label className="f" style={{ marginTop: 10 }}>{t('Password')}<Input type="password" autoComplete="new-password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} /></label>
       <div style={{ display: 'flex', gap: 8, marginTop: 12, alignItems: 'center' }}>

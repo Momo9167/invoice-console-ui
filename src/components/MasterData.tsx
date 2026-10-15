@@ -88,6 +88,7 @@ export function MasterData({ tab }: { tab: Tab }) {
       {f.ta
         ? <Textarea rows={3} value={form[f.k] || ''} onChange={(e) => setForm({ ...form, [f.k]: e.target.value })} />
         : <Input value={form[f.k] || ''} placeholder={t(f.ph || '')} inputMode={f.num ? 'decimal' : undefined}
+            type={f.k === 'phone' ? 'tel' : undefined} autoComplete="off"
             onChange={(e) => setForm({ ...form, [f.k]: e.target.value })} />}
     </label>
   );
@@ -124,7 +125,7 @@ export function MasterData({ tab }: { tab: Tab }) {
         </div>
         <div className="card">
           <div className="toolbar">
-            <Input className="search" placeholder={t('Search {x}…', { x: my ? many : many.toLowerCase() })} value={q} onChange={(e) => setQ(e.target.value)} />
+            <Input className="search" type="search" placeholder={t('Search {x}…', { x: my ? many : many.toLowerCase() })} aria-label={t('Search {x}…', { x: my ? many : many.toLowerCase() })} autoComplete="off" value={q} onChange={(e) => setQ(e.target.value)} />
           </div>
           {shown.length ? (
             <table className="list stack">

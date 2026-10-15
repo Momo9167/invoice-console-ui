@@ -6,6 +6,7 @@ import { fmtDate, num, splitOf, today } from '@/lib/calc';
 import { earnings, inPeriod, owedToAko } from '@/lib/earnings';
 import type { DocDTO, ExpenseDTO, PayoutDTO } from '@/lib/types';
 import { useApp } from './AppContext';
+import { RowLink } from './RowLink';
 import { periodLabel, PeriodFilter } from './PeriodFilter';
 import { norm } from './Picker';
 import { Button } from '@/components/ui/button';
@@ -73,7 +74,7 @@ export function SharesPage() {
           <h3>{t('Pay {name}', { name: owner })}</h3>
           <div className="grid3">
             <label className="f">{t('Date')}<Input type="date" value={pay.date} onChange={(ev) => setPay({ ...pay, date: ev.target.value })} /></label>
-            <label className="f">{t('Amount')}<Input inputMode="decimal" autoFocus value={pay.amount} onChange={(ev) => setPay({ ...pay, amount: ev.target.value })} /></label>
+            <label className="f">{t('Amount')}<Input inputMode="decimal" value={pay.amount} onChange={(ev) => setPay({ ...pay, amount: ev.target.value })} /></label>
             <label className="f">{t('Note')}<Input placeholder={t('optional')} value={pay.note} onChange={(ev) => setPay({ ...pay, note: ev.target.value })} /></label>
           </div>
           <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
@@ -93,7 +94,7 @@ export function SharesPage() {
               </button>
             ))}
           </div>
-          <Input className="search" placeholder={t('Search number or customer…')} value={q} onChange={(ev) => setQ(ev.target.value)} />
+          <Input className="search" type="search" placeholder={t('Search number or customer…')} aria-label={t('Search number or customer…')} autoComplete="off" value={q} onChange={(ev) => setQ(ev.target.value)} />
         </div>
         {shown.length ? (
           <table className="list cards">
@@ -104,7 +105,7 @@ export function SharesPage() {
                 return (
                   <tr className="row" key={d.id} onClick={() => navigate(`/shares/${d.id}`)}>
                     <td className="c-date">{fmtDate(d.date)}</td>
-                    <td className="c-title"><b>{d.number}</b></td>
+                    <td className="c-title"><RowLink href={`/shares/${d.id}`}><b>{d.number}</b></RowLink></td>
                     <td className="c-sub">{d.customer.name || '—'}</td>
                     <td className="r c-amt">{money(s.total)}</td>
                     <td className="r hide-sm">{done ? money(s.bmm) : '—'}</td>
@@ -209,7 +210,7 @@ export function SplitEditor({ id }: { id: string }) {
                   <td className="r">{num(l.qty)}</td>
                   <td className="r hide-sm">{money(l.price)}</td>
                   <td className="r">{money(l.amount)}</td>
-                  <td className="r"><Input className="share-in" inputMode="decimal" placeholder="0" value={shares[i] ?? ''} onChange={(e) => setShares(shares.map((x, j) => (j === i ? e.target.value : x)))} /></td>
+                  <td className="r"><Input className="share-in" inputMode="decimal" placeholder="0" aria-label={`${t('{name} share / unit', { name: partner })}: ${l.description || '—'}`} autoComplete="off" value={shares[i] ?? ''} onChange={(e) => setShares(shares.map((x, j) => (j === i ? e.target.value : x)))} /></td>
                   <td className={`r ${b > l.amount + 0.005 ? 'neg' : ''}`}><b>{money(b)}</b></td>
                   <td className="r">{money(l.amount - b)}</td>
                 </tr>

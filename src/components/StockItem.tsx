@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { api } from '@/lib/client';
 import { useStock } from '@/lib/useStock';
 import { useApp } from './AppContext';
+import { RowLink } from './RowLink';
 import { Button } from '@/components/ui/button';
 
 type Move = { id: string; locationId: string; qty: number; kind: string; unitCost: string | null; refType: string; refId: string; refNumber: string; note: string; createdBy: string; createdAt: string };
@@ -25,11 +26,8 @@ export function StockItem({ productId }: { productId: string }) {
 
   const row = stock.rows.find((r) => r.id === productId);
   const locName = (id: string | null) => locations.find((l) => l.id === id)?.name || '—';
-  const open = (m: Move) => {
-    if (m.refType === 'invoice') navigate(`/docs/${m.refId}`);
-    if (m.refType === 'purchase') navigate(`/purchases/${m.refId}`);
-    if (m.refType === 'transfer') navigate(`/transfers/${m.refId}`);
-  };
+  const PAGE: Record<string, string> = { invoice: '/docs', purchase: '/purchases', transfer: '/transfers' };
+  const hrefOf = (m: Move) => (m.refId && PAGE[m.refType || ''] ? `${PAGE[m.refType || '']}/${m.refId}` : '');
   const serials = d.serials.filter((s) => !serialFilter || s.status === serialFilter);
 
   return (
@@ -80,10 +78,10 @@ export function StockItem({ productId }: { productId: string }) {
             <thead><tr><th>{t('Date')}</th><th>{t('Type')}</th><th>{t('Reference')}</th><th>{t('Location')}</th><th className="r">{t('Qty')}</th><th className="hide-sm">{t('By')}</th></tr></thead>
             <tbody>
               {d.moves.map((m) => (
-                <tr key={m.id} className={m.refId ? 'row' : ''} onClick={() => m.refId && open(m)}>
+                <tr key={m.id} className={hrefOf(m) ? 'row' : ''} onClick={() => hrefOf(m) && navigate(hrefOf(m))}>
                   <td className="c-date">{new Date(m.createdAt).toLocaleDateString('en-GB')}</td>
                   <td className="c-title">{t(KIND[m.kind] || m.kind)}{m.note && <span className="sub-note">{m.note}</span>}</td>
-                  <td className="c-type">{m.refNumber}</td>
+                  <td className="c-type">{hrefOf(m) ? <RowLink href={hrefOf(m)}>{m.refNumber}</RowLink> : m.refNumber}</td>
                   <td className="c-sub">{locName(m.locationId)}</td>
                   <td className={`r c-amt ${m.qty < 0 ? 'neg' : 'pos'}`}>{m.qty > 0 ? '+' : ''}{m.qty}</td>
                   <td className="hide-sm c-status">{m.createdBy}</td>

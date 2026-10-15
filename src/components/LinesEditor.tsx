@@ -42,7 +42,7 @@ export function LinesEditor({ lines, onChange, withCost, available, serialSugges
                 empty={products.length ? t('No saved item matches') : t('Add items in Master Data first')}
                 inputProps={{ placeholder: t('Choose an item…') }}
               />
-              <Button variant="ghost" size="icon-sm" className="text-muted-foreground hover:text-destructive" title={t('Remove')} onClick={() => onChange(lines.filter((_, j) => j !== i))}>×</Button>
+              <Button variant="ghost" size="icon-sm" className="text-muted-foreground hover:text-destructive" title={t('Remove')} aria-label={t('Remove')} onClick={() => onChange(lines.filter((_, j) => j !== i))}>×</Button>
             </div>
             {!l.productId && l.label && <div className="pay-empty" style={{ color: 'var(--danger)', margin: '0 0 6px' }}>{t('Pick the item from the list')}</div>}
             <div className="item-grid" style={{ gridTemplateColumns: withCost ? '80px 1fr 1fr' : '80px 1fr' }}>

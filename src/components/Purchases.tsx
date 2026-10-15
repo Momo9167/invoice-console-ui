@@ -5,6 +5,7 @@ import { api } from '@/lib/client';
 import { fmtDate, num, today } from '@/lib/calc';
 import type { PurchaseDTO, TransferStatus } from '@/lib/types';
 import { useApp } from './AppContext';
+import { RowLink } from './RowLink';
 import { blankLine, LinesEditor, linesPayload, type Line } from './LinesEditor';
 import { norm } from './Picker';
 import { SerialInput } from './SerialInput';
@@ -40,7 +41,7 @@ export function PurchasesList() {
             <button className={!status ? 'on' : ''} onClick={() => setStatus('')}>{t('All')}</button>
             {STATUSES.map((s) => <button key={s} className={status === s ? 'on' : ''} onClick={() => setStatus(s)}>{t('tr.' + s)} <span className="cnt">{rows.filter((r) => r.status === s).length}</span></button>)}
           </div>
-          <Input className="search" placeholder={t('Search order, supplier or online order no…')} value={q} onChange={(e) => setQ(e.target.value)} />
+          <Input className="search" type="search" placeholder={t('Search order, supplier or online order no…')} aria-label={t('Search order, supplier or online order no…')} autoComplete="off" value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
         {shown.length ? (
           <table className="list cards">
@@ -49,7 +50,7 @@ export function PurchasesList() {
               {shown.map((r) => (
                 <tr className="row" key={r.id} onClick={() => navigate(`/purchases/${r.id}`)}>
                   <td className="c-date">{fmtDate(r.date)}</td>
-                  <td className="c-title"><b>{r.number}</b>{r.orderRef && <span className="sub-note">{r.orderRef}</span>}</td>
+                  <td className="c-title"><RowLink href={`/purchases/${r.id}`}><b>{r.number}</b></RowLink>{r.orderRef && <span className="sub-note">{r.orderRef}</span>}</td>
                   <td className="c-sub">{r.supplier || '—'}</td>
                   <td className="hide-sm c-type">{loc(r.locationId)}</td>
                   <td className="hide-md">{r.transfers?.map((x) => <span key={x.id} className={`badge tr-${x.status}`} style={{ marginRight: 4 }}>{x.number}</span>)}</td>

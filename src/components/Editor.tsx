@@ -293,7 +293,7 @@ export function Editor({ initial, startDirty = false }: { initial: DocDTO; start
               />
             </label>
             <label className="f">{t('Address')}<Textarea rows={2} value={d.customer.address} onChange={(e) => editCustomer({ address: e.target.value })} /></label>
-            <label className="f">{t('Phone')}<Input value={d.customer.phone} placeholder="+95 9…" onChange={(e) => editCustomer({ phone: e.target.value })} /></label>
+            <label className="f">{t('Phone')}<Input type="tel" autoComplete="off" value={d.customer.phone} placeholder="+95 9…" onChange={(e) => editCustomer({ phone: e.target.value })} /></label>
             <div className="cust-hint">{custHint()}</div>
           </div>
 
@@ -315,7 +315,7 @@ export function Editor({ initial, startDirty = false }: { initial: DocDTO; start
                   <Button variant="ghost" size="icon-sm" className="text-muted-foreground" title={t('Move up')} disabled={i === 0} onClick={() => {
                     const items = [...d.items]; [items[i - 1], items[i]] = [items[i], items[i - 1]]; edit({ items });
                   }}>↑</Button>
-                  <Button variant="ghost" size="icon-sm" className="text-muted-foreground hover:text-destructive" title={t('Remove')} onClick={() => edit({ items: d.items.filter((_, j) => j !== i) })}>×</Button>
+                  <Button variant="ghost" size="icon-sm" className="text-muted-foreground hover:text-destructive" title={t('Remove')} aria-label={t('Remove')} onClick={() => edit({ items: d.items.filter((_, j) => j !== i) })}>×</Button>
                 </div>
                 <div className="item-grid">
                   <label><span>{t('Qty')}</span><Input inputMode="decimal" value={it.qty} onChange={(e) => editItem(i, { qty: e.target.value })} /></label>
