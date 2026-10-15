@@ -523,6 +523,11 @@ const DOC_MY: Record<string, string> = {
   ' ({n} payments)': ' ({n} ကြိမ်)',
   'Customer Signature': 'ဝယ်ယူသူ လက်မှတ်',
   'Authorized Signature': 'တာဝန်ရှိသူ လက်မှတ်',
+  'Scan to verify': 'စစ်ဆေးရန် စကန်ဖတ်ပါ',
+  'Genuine document': 'မှန်ကန်သော စာရွက်',
+  'Genuine but VOID': 'မှန်ကန်သော်လည်း ပယ်ဖျက်ထားသည်',
+  'Issued by {name}': '{name} မှ ထုတ်ပေးသည်',
+  'If the amounts on your copy are different from these, the copy has been changed. Contact {name}.': 'သင့်လက်ထဲရှိ စာရွက်ပါ ပမာဏများ ဤနေရာနှင့် မတူလျှင် ပြင်ဆင်ထားသော စာရွက် ဖြစ်သည်။ {name} ကို ဆက်သွယ်ပါ။',
   'stamp.paid': 'ပေးချေပြီး',
   'stamp.void': 'ပယ်ဖျက်',
 };

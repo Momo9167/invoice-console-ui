@@ -4,7 +4,8 @@ import { SESSION_COOKIE, verifySession } from '@/lib/auth';
 // Pages require login. /api/* is forwarded to the backend, which does its own check.
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
-  if (pathname === '/login') return NextResponse.next();
+  // /login and the public QR verification pages need no login
+  if (pathname === '/login' || pathname.startsWith('/v/')) return NextResponse.next();
   if (await verifySession(req.cookies.get(SESSION_COOKIE)?.value)) return NextResponse.next();
   const login = new URL('/login', req.url);
   if (pathname !== '/') login.searchParams.set('next', pathname);

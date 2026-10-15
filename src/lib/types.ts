@@ -58,6 +58,7 @@ export interface DocDTO {
   // Internal Bmm / Ako split, never shown to the customer.
   split?: SplitDTO | null;
   splitStatus?: 'new' | 'complete';
+  verifyCode?: string | null; // QR on the document -> public /v/<code> check
   payments: PaymentDTO[];
   createdAt?: string;
   updatedAt?: string;
@@ -119,6 +120,12 @@ export interface SplitDTO {
 export interface ExpenseDTO {
   id?: string; date: string; category: string; amount: string | number; paidFrom: 'cash' | 'owner';
   note: string; refType?: string; refId?: string; refNumber?: string; createdBy?: string;
+}
+
+// What the public verification page may show (no phone, address, items or internal data).
+export interface VerifyDTO {
+  type: DocType; number: string; date: string; customer: string; total: string; paid: string; balance: string;
+  status: Status | 'quotation'; void: boolean; company: string; docLang: Lang;
 }
 
 export interface PayoutDTO { id?: string; date: string; amount: string | number; note: string; createdBy?: string }

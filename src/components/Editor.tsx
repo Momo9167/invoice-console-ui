@@ -175,6 +175,8 @@ export function Editor({ initial, startDirty = false }: { initial: DocDTO; start
 
   // ---------- preview scaling
   const pvRef = useRef<HTMLDivElement>(null);
+  const [origin, setOrigin] = useState('');
+  useEffect(() => { setOrigin(location.origin); }, []);
   const [zoom, setZoom] = useState(1);
   useLayoutEffect(() => {
     const el = pvRef.current; if (!el) return;
@@ -373,7 +375,7 @@ export function Editor({ initial, startDirty = false }: { initial: DocDTO; start
 
         <div className="preview-wrap" ref={pvRef}>
           <div className="hint no-print">{t('Live preview · A4')}</div>
-          <Sheet doc={d} settings={settings} style={{ zoom }} />
+          <Sheet doc={d} settings={settings} style={{ zoom }} verifyBase={origin} />
         </div>
       </div>
     </>

@@ -3,8 +3,10 @@ import type { CSSProperties } from 'react';
 import { calc, dueDateOf, fmtDate, latinDigits, money as fmtMoney, num, statusOf } from '@/lib/calc';
 import { translate } from '@/lib/i18n';
 import type { DocDTO, Settings } from '@/lib/types';
+import { QR } from './QR';
 
-export function Sheet({ doc: d, settings: s, style }: { doc: DocDTO; settings: Settings; style?: CSSProperties }) {
+// verifyBase = public site origin; with the document's code it makes the QR link (/v/<code>).
+export function Sheet({ doc: d, settings: s, style, verifyBase }: { doc: DocDTO; settings: Settings; style?: CSSProperties; verifyBase?: string }) {
   const td = (k: string, v?: Record<string, unknown>) => translate(s.docLang, k, v, true);
   const money = (n: unknown) => fmtMoney(n, s.currency || 'Ks');
   const c = calc(d);
@@ -117,7 +119,16 @@ export function Sheet({ doc: d, settings: s, style }: { doc: DocDTO; settings: S
         </div>
       </div>
 
-      <div className="s-sign"><div>{td('Customer Signature')}</div><div>{td('Authorized Signature')}</div></div>
+      <div className="s-sign">
+        <div>{td('Customer Signature')}</div>
+        {d.verifyCode && verifyBase && (
+          <figure className="s-qr">
+            <QR value={`${verifyBase}/v/${d.verifyCode}`} size={78} />
+            <figcaption>{td('Scan to verify')}<span>{d.verifyCode}</span></figcaption>
+          </figure>
+        )}
+        <div>{td('Authorized Signature')}</div>
+      </div>
       <div className="s-footer"><strong>{my && s.footerMy ? s.footerMy : s.footer}</strong> &nbsp;·&nbsp; {s.companyName}</div>
     </div>
   );
