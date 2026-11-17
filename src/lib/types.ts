@@ -13,6 +13,7 @@ export interface Settings {
   quotationStart: number | string;
   footer: string;
   footerMy: string;
+  defaultNotes: string; // pre-filled notes / terms on new invoices and quotations
   uiLang: Lang;
   docLang: Lang;
   ownerName: string;   // owns the stock, gets the rest of item sales (Ako)

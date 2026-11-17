@@ -15,7 +15,7 @@ export default function Page({ params }: { params: Promise<{ type: string }> }) 
   const type: DocType = raw === 'invoice' ? 'invoice' : 'quotation';
   const search = useSearchParams();
   const from = search.get('from'), customerId = search.get('customer');
-  const { t, locations } = useApp();
+  const { t, locations, settings } = useApp();
   const [doc, setDoc] = useState<DocDTO | null>(null);
 
   useEffect(() => {
@@ -32,7 +32,7 @@ export default function Page({ params }: { params: Promise<{ type: string }> }) 
         deliveryFee: src?.deliveryFee && src.deliveryFee !== '0' ? src.deliveryFee : '',
         serviceCharge: src?.serviceCharge && src.serviceCharge !== '0' ? src.serviceCharge : '',
         serviceDiscount: src?.serviceDiscount && src.serviceDiscount !== '0' ? src.serviceDiscount : '',
-        notes: src?.notes ?? '',
+        notes: src ? src.notes : settings.defaultNotes || '',
         void: false,
         payments: [], // never copied
         // Invoices take stock from here; default to Yangon (or the first active location).

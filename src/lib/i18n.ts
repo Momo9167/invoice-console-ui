@@ -230,6 +230,8 @@ const MY: Record<string, string> = {
   'Logo': 'လိုဂို',
   'To change the logo, replace <code>public/logo.jpg</code> in the app folder.': 'လိုဂို ပြောင်းရန် အက်ပ်ဖိုင်တွဲရှိ <code>public/logo.jpg</code> ကို အစားထိုးပါ။',
   'Save settings': 'ဆက်တင် သိမ်းမည်',
+  'Default notes / terms': 'မူလ မှတ်ချက် / စည်းကမ်းချက်များ',
+  'Filled in on every new invoice and quotation. You can still change it on each one.': 'ငွေတောင်းခံလွှာနှင့် ဈေးနှုန်းလွှာ အသစ်တိုင်းတွင် အလိုအလျောက် ထည့်ပေးမည်။ တစ်ခုချင်းစီတွင် ပြင်နိုင်ပါသည်။',
   'Settings saved': 'ဆက်တင် သိမ်းပြီး',
 
   // login

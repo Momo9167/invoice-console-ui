@@ -54,6 +54,8 @@ export function SettingsPage() {
           <div className="grid2" style={{ marginTop: 10 }}>{field('quotationPrefix', 'Quotation prefix')}{field('quotationStart', 'Quotation numbers start from')}</div>
           <p style={muted}>{t('New numbers continue after the highest saved number, but never go below the start number.')}</p>
           <div className="grid2" style={{ marginTop: 10 }}>{field('currency', 'Currency symbol')}{field('footer', 'Footer message')}</div>
+          <div style={{ marginTop: 10 }}>{field('defaultNotes', 'Default notes / terms', true)}</div>
+          <p style={muted}>{t('Filled in on every new invoice and quotation. You can still change it on each one.')}</p>
         </div>
         <div className="section"><h3>{t('Logo')}</h3>
           <p style={{ color: 'var(--muted)', lineHeight: 1.6 }} dangerouslySetInnerHTML={{ __html: t('To change the logo, replace <code>public/logo.jpg</code> in the app folder.') }} />
